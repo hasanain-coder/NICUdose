@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NICU Dose Calculator | حاسبة الجرع</title>
+    <title>NICU Dose Calculator | حاسبة الجرعات</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         * { font-family: system-ui, -apple-system, sans-serif; }
@@ -13,14 +13,36 @@
             border: 2px solid #93c5fd !important;
             padding: 0.75rem 1rem !important;
             border-radius: 0.5rem !important;
+            background-color: white !important;
+            text-align: center;
         }
         input:focus {
             outline: none;
             border-color: #0ea5e9 !important;
             box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1) !important;
         }
-        .drug-btn { transition: all 0.3s; }
-        .drug-btn:hover { transform: translateY(-4px); box-shadow: 0 10px 20px -3px rgba(0,0,0,0.1); }
+        .drug-btn {
+            transition: all 0.3s;
+            position: relative;
+        }
+        .drug-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 20px -3px rgba(0, 0, 0, 0.1);
+        }
+        .action-btn {
+            min-height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        .action-btn:active {
+            transform: scale(0.98);
+        }
+        .rounded-card {
+            border-radius: 1rem !important;
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-sky-50 via-cyan-50 to-teal-50 min-h-screen flex flex-col">
@@ -28,115 +50,117 @@
         <div class="container mx-auto px-4 py-6">
             <div class="flex items-center justify-between">
                 <div class="flex-1">
-                    <button id="backBtn" onclick="goBack()" class="text-white hover:bg-white/20 p-2 rounded-full hidden">← رجوع</button>
+                    <button id="backBtn" onclick="goBack()" class="text-white hover:bg-white/20 p-2 rounded-lg hidden">← رجوع</button>
                 </div>
-                <div class="text-center flex-1">
-                    <h1 class="text-3xl md:text-4xl font-bold">حاسبة الجرع</h1>
-                    <p class="text-sky-100 text-sm md:text-base">للوحدات الخاصة برعاية حديثي الولادة</p>
+                <div class="text-center flex-[2]">
+                    <h1 class="text-2xl md:text-4xl font-bold">حاسبة الجرعات</h1>
+                    <p class="text-sky-100 text-sm md:text-base">وحدات رعاية حديثي الولادة</p>
                 </div>
                 <div class="flex-1 flex justify-end">
                     <div id="headerPatientInfo" class="bg-white/20 rounded-lg px-3 py-2 flex items-center gap-2 hidden">
-                        <span class="text-sm"><span id="headerPatientName" class="font-semibold">مجهول</span> | <span id="headerPatientWeight" class="text-sky-100">0 كجم</span></span>
+                        <span class="text-sm"><span id="headerPatientName" class="font-semibold"></span> | <span id="headerPatientWeight" class="text-sky-100"></span></span>
                     </div>
                 </div>
             </div>
         </div>
     </header>
+
     <main class="flex-1 px-4 py-8 relative">
         <div id="greetingScreen" class="screen-visible">
             <div class="flex items-center justify-center h-full">
                 <div class="w-full max-w-md">
                     <div class="shadow-2xl border-2 border-sky-200 rounded-xl bg-white">
-                        <div class="bg-gradient-to-l from-sky-50 to-teal-50 border-b border-sky-200 p-6 rounded-t-xl">
+                        <div class="bg-gradient-to-l from-sky-50 to-teal-50 border-b-2 border-sky-200 p-6 rounded-t-xl">
                             <h2 class="text-2xl text-sky-800 text-center font-bold">معلومات المريض</h2>
-                            <p class="text-center text-sky-700">أدخل بيانات الطفل للبدء في حساب الجرعات</p>
+                            <p class="text-center text-sky-700">أدخل بيانات الطفل للبدء</p>
                         </div>
                         <div class="p-6 space-y-6">
                             <div class="space-y-2">
-                                <label class="text-sky-800 text-base font-semibold block">اسم الطفل</label>
-                                <input id="babyName" type="text" placeholder="أدخل اسم الطفل" class="w-full text-lg text-right">
+                                <label for="babyName" class="text-sky-800 text-base font-semibold block">اسم الطفل</label>
+                                <input id="babyName" type="text" placeholder="أدخل اسم الطفل" class="w-full text-lg border-sky-300 rounded-lg px-4 py-3">
                             </div>
                             <div class="space-y-2">
-                                <label class="text-sky-800 text-base font-semibold block">وزن الطفل بالكيلوغرام</label>
-                                <input id="babyWeight" type="number" step="0.01" min="0" placeholder="مثال: 1.25" class="w-full text-lg text-right">
-                                <p class="text-sm text-sky-600 mt-2">يجب إدخال الوزن بالكيلوغرام (يدعم الكسور العشرية)</p>
+                                <label for="babyWeight" class="text-sky-800 text-base font-semibold block">وزن الطفل (كجم)</label>
+                                <input id="babyWeight" type="text" inputmode="decimal" placeholder="مثال: 1.25" class="w-full text-lg border-sky-300 rounded-lg px-4 py-3">
+                                <p class="text-xs text-sky-600 mt-2">يقبل الأرقام العربية (٠-٩) والإنجليزية</p>
                             </div>
-                            <div id="errorMessage" class="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-lg text-center hidden"></div>
-                            <button onclick="selectTreatment()" class="w-full bg-gradient-to-l from-sky-500 to-teal-500 hover:from-sky-600 hover:to-teal-600 text-white text-lg font-bold py-4 shadow-lg rounded-lg">اختيار العلاج</button>
-                            <div class="bg-sky-50 border border-sky-200 rounded-lg p-4">
-                                <p class="text-sm text-sky-700 text-center">💡 يتم احتساب الجرعات بدقة عالية لضمان سلامة المرضى</p>
-                            </div>
+                            <div id="errorMessage" class="bg-red-50 border-2 border-red-300 text-red-700 px-4 py-3 rounded-lg text-center hidden"></div>
+                            <button onclick="selectTreatment()" class="w-full bg-gradient-to-l from-sky-500 to-teal-500 hover:from-sky-600 hover:to-teal-600 text-white text-lg font-bold py-4 shadow-lg rounded-lg transition-all">اختيار العلاج</button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
         <div id="drugSelectionScreen" class="screen-hidden">
             <div class="container mx-auto max-w-4xl">
-                <div class="mb-6 bg-gradient-to-l from-sky-100 to-teal-100 border-sky-300 rounded-xl">
-                    <div class="p-6">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-4">
-                                <div class="bg-gradient-to-l from-sky-500 to-teal-500 rounded-full p-3 text-white">👶</div>
-                                <div>
-                                    <h2 id="selectionPatientName" class="text-xl font-bold text-sky-800 mb-1">مجهول</h2>
-                                    <p class="text-sky-700">الوزن: <span id="selectionPatientWeight" class="font-bold">0</span> كجم</p>
-                                </div>
+                <div class="mb-6 bg-gradient-to-l from-sky-100 to-teal-100 border-2 border-sky-300 rounded-xl p-6">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="bg-gradient-to-l from-sky-500 to-teal-500 rounded-full p-3 text-white">👶</div>
+                            <div>
+                                <h2 id="selectionPatientName" class="text-xl font-bold text-sky-800">مجهول</h2>
+                                <p class="text-sky-700">الوزن: <span id="selectionPatientWeight" class="font-bold">0</span> كجم</p>
                             </div>
-                            <div class="bg-white/50 rounded-full px-3 py-2 flex items-center gap-2">
-                                <span class="text-sm text-sky-700">⚡</span>
-                                <span id="selectedDrugsCount" class="text-sm text-sky-700 font-bold">0 دواء محدد</span>
-                            </div>
+                        </div>
+                        <div class="bg-white/50 rounded-full px-3 py-2">
+                            <span id="selectedDrugsCount" class="text-sm text-sky-700 font-bold">0 دواء محدد</span>
                         </div>
                     </div>
                 </div>
                 <div class="mb-6">
                     <h2 class="text-2xl font-bold text-sky-800 mb-2">اختيار الأدوية</h2>
-                    <p class="text-sky-700">حدد واحد أو أكثر من الأدوية التالية لحساب الجرعات</p>
+                    <p class="text-sky-700">حدد الأدوية المطلوبة لحساب جرعاتها</p>
                 </div>
                 <div id="drugGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-24"></div>
             </div>
         </div>
+
         <div id="resultsScreen" class="screen-hidden">
-            <div class="container mx-auto max-w-5xl">
-                <div class="mb-6 bg-gradient-to-l from-emerald-500 to-teal-600 border-emerald-600 rounded-xl">
-                    <div class="p-6 text-white">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-4">
-                                <div class="bg-white/20 rounded-full p-3 text-white">🧮</div>
-                                <div>
-                                    <h2 class="text-2xl font-bold mb-1">نتائج الحساب</h2>
-                                    <p><span id="resultsPatientName"></span> | <span id="resultsPatientWeight"></span> كجم | <span id="resultsDrugsCount"></span> دواء</p>
-                                </div>
-                            </div>
-                            <div class="flex flex-col items-end gap-2 w-full max-w-xs">
-                                <button onclick="startOver()" class="w-full bg-white/20 border border-white text-white font-bold hover:bg-white/30 px-4 py-3 rounded-lg">📄 بدء جديد</button>
-                                <a href="https://t.me/NICU_BTHbot" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 w-full px-4 py-3 bg-white/20 border border-white text-white font-bold hover:bg-white/30 rounded-lg">
-                                    <span style="font-size: 28px;">✉️</span>
-                                    التواصل مع فريق الصيادلة
-                                </a>
-                            </div>
+            <div class="container mx-auto max-w-5xl pb-40">
+                <div class="mb-6 bg-gradient-to-l from-emerald-500 to-teal-600 border-2 border-emerald-600 rounded-xl p-6 text-white shadow-lg">
+                    <div class="flex items-center gap-4">
+                        <div class="bg-white/20 rounded-full p-3 text-white text-2xl">📋</div>
+                        <div>
+                            <h2 class="text-2xl font-bold mb-1">نتائج الحساب</h2>
+                            <p><span id="resultsPatientName"></span> | <span id="resultsPatientWeight"></span> كجم</p>
                         </div>
                     </div>
                 </div>
-                <div id="resultsGrid" class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-24"></div>
-                <div class="mt-6 mb-8 bg-amber-50 border-2 border-amber-300 rounded-lg p-4">
+                <div id="resultsGrid" class="grid grid-cols-1 lg:grid-cols-2 gap-6"></div>
+                
+                <div class="mt-8 bg-amber-50 border-2 border-amber-300 rounded-xl p-6 shadow-sm">
                     <div class="flex items-start gap-3">
-                        <span class="text-amber-600" style="font-size: 24px;">⚠️</span>
+                        <span class="text-amber-600 text-2xl">⚠️</span>
                         <div>
-                            <p class="text-amber-900 font-bold text-lg italic mb-1">الرجاء التأكد جيداً من الوزن والجرع المحسوبة قبل إعطاء العلاج</p>
-                            <p class="text-amber-700 text-sm">احرص دائماً على مراجعة الحسابات والتأكد من صحة البيانات قبل إعطاء أي دواء</p>
+                            <p class="text-amber-900 font-bold text-lg mb-1">تنبيه هام</p>
+                            <p class="text-amber-700 text-sm">يرجى مراجعة الحسابات والتأكد من صحة البيانات والوزن قبل إعطاء أي دواء للطفل.</p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </main>
-    <div id="calculateBtnContainer" class="fixed bottom-0 left-0 right-0 bg-white border-t border-sky-200 p-4 shadow-lg hidden">
+
+    <div id="calculateBtnContainer" class="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-sky-200 p-4 shadow-lg hidden">
         <div class="container mx-auto max-w-4xl">
-            <button id="calculateBtn" onclick="calculateDoses()" class="w-full py-4 text-lg font-bold shadow-lg bg-gradient-to-l from-sky-500 to-teal-500 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed">حساب الجرع</button>
+            <button id="calculateBtn" onclick="calculateDoses()" class="w-full py-4 text-lg font-bold bg-gradient-to-l from-sky-500 to-teal-500 text-white rounded-xl shadow-md disabled:opacity-50">حساب الجرعات</button>
         </div>
     </div>
+
+    <div id="resultsFooter" class="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-emerald-100 p-6 shadow-[0_-10px_20px_rgba(0,0,0,0.05)] hidden">
+        <div class="container mx-auto max-w-4xl">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <button onclick="startOver()" class="action-btn w-full bg-emerald-50 border-2 border-emerald-500 text-emerald-700 font-bold rounded-xl hover:bg-emerald-100">
+                    <span>🔄</span> بدء جديد
+                </button>
+                <a href="https://t.me/NICU_BTHbot" target="_blank" class="action-btn w-full bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 shadow-md">
+                    <span>💬</span> التواصل مع فريق الصيادلة
+                </a>
+            </div>
+        </div>
+    </div>
+
     <script>
         const DRUGS = [
             { id: 1, name: 'Amoxicillin', nameAr: 'أموكسيسيلين', dosePerKg: 50, unit: 'mg', factor: 1, methodIndex: 1, timeMultiplier: 1 },
@@ -153,56 +177,57 @@
 
         const METHODS = {
             1: 'تسحب ** مل وتعطى خلال ٥ دقائق',
-            2: 'تسحب ** وحدة انسولين وتخفف ب٥ سيسي كلوكوز وتر ويعطى خلال ١٠ دقائق',
-            3: 'تسحب ** مل وتضاف الى ## سيسي كلوكوز وتر، تفرغ ١٠ سيسي ويعطى ١٠ سيسي',
-            4: 'تسحب ** وحدة انسولين وتخفف ب٥ سيسي كلوكوز وتر ويعطى خلال ١٠ دقائق',
-            5: 'تسحب ** وحدة انسولين وتخفف ب٥ سيسي كلوكوز وتر ويعطى خلال ٥ دقائق',
-            6: 'تسحب ** وحدة انسولين وتخفف ب٥ سيسي كلوكوز وتر ويعطى خلال ٥ دقائق',
-            7: 'تسحب ** وتضاف الى ## سيسي كلوكوز وتر، تفرغ ١٠ سيسي ويعطى ١٠ سيسي',
-            8: 'تسحب ** وتضاف الى ## سيسي كلوكوز وتر، تفرغ ١٠ سيسي ويعطى ١٠ سيسي',
-            9: 'تسحب ** وحدة انسولين وتضاف الى 20 سيسي كلوكوز وتر، تفرغ ١٠ سيسي ويعطى ١٠ سيسي',
-            10: 'تسحب ** وحدة انسولين وتضاف الى 20 سيسي كلوكوز وتر، تفرغ ١٠ سيسي ويعطى ١٠ سيسي'
+            2: 'تسحب ** وحدة انسولين وتخفف بـ ٥ سيسي كلوكوز وتر ويعطى خلال ١٠ دقائق',
+            3: 'تسحب ** مل وتضاف إلى ## سيسي كلوكوز وتر، تفرغ ١٠ سيسي ويعطى ١٠ سيسي',
+            4: 'تسحب ** وحدة انسولين وتخفف بـ ٥ سيسي كلوكوز وتر ويعطى خلال ١٠ دقائق',
+            5: 'تسحب ** وحدة انسولين وتخفف بـ ٥ سيسي كلوكوز وتر ويعطى خلال ٥ دقائق',
+            6: 'تسحب ** وحدة انسولين وتخفف بـ ٥ سيسي كلوكوز وتر ويعطى خلال ٥ دقائق',
+            7: 'تسحب ** وتضاف إلى ## سيسي كلوكوز وتر، تفرغ ١٠ سيسي ويعطى ١٠ سيسي',
+            8: 'تسحب ** وتضاف إلى ## سيسي كلوكوز وتر، تفرغ ١٠ سيسي ويعطى ١٠ سيسي',
+            9: 'تسحب ** وحدة انسولين وتضاف إلى 20 سيسي كلوكوز وتر، تفرغ ١٠ سيسي ويعطى ١٠ سيسي',
+            10: 'تسحب ** وحدة انسولين وتضاف إلى 20 سيسي كلوكوز وتر، تفرغ ١٠ سيسي ويعطى ١٠ سيسي'
         };
 
         let currentScreen = 'greeting';
         let selectedDrugs = [];
         let patientInfo = null;
-        let results = [];
+
+        function normalizeNumerals(str) {
+            return str.replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+        }
+
+        // منع إدخال الأحرف في حقل الوزن
+        document.getElementById('babyWeight').addEventListener('input', function(e) {
+            let val = e.target.value;
+            // السماح بالأرقام الإنجليزية والعربية والنقطة العشرية فقط
+            e.target.value = val.replace(/[^\d.٠-٩]/g, '');
+        });
 
         function showScreen(screen) {
-            document.getElementById('greetingScreen').classList.toggle('screen-hidden', screen !== 'greeting');
-            document.getElementById('greetingScreen').classList.toggle('screen-visible', screen === 'greeting');
-            document.getElementById('drugSelectionScreen').classList.toggle('screen-hidden', screen !== 'drugSelection');
-            document.getElementById('drugSelectionScreen').classList.toggle('screen-visible', screen === 'drugSelection');
-            document.getElementById('resultsScreen').classList.toggle('screen-hidden', screen !== 'results');
-            document.getElementById('resultsScreen').classList.toggle('screen-visible', screen === 'results');
+            currentScreen = screen;
+            document.getElementById('greetingScreen').className = screen === 'greeting' ? 'screen-visible' : 'screen-hidden';
+            document.getElementById('drugSelectionScreen').className = screen === 'drugSelection' ? 'screen-visible' : 'screen-hidden';
+            document.getElementById('resultsScreen').className = screen === 'results' ? 'screen-visible' : 'screen-hidden';
+            
             document.getElementById('backBtn').classList.toggle('hidden', screen === 'greeting');
             document.getElementById('headerPatientInfo').classList.toggle('hidden', screen === 'greeting' || !patientInfo);
             document.getElementById('calculateBtnContainer').classList.toggle('hidden', screen !== 'drugSelection');
-        }
-
-        function formatNumber(num) {
-            if (num === Math.round(num)) return num.toFixed(0);
-            return num.toFixed(1);
-        }
-
-        function formatDrugRule(drug) {
-            if (drug.unit === 'IU' && (drug.id === 5 || drug.id === 6)) {
-                const dose = Math.round(drug.dosePerKg);
-                return dose.toLocaleString('en-US') + ',000 IU/kg/dose';
-            }
-            return drug.dosePerKg + ' ' + drug.unit + '/kg' + (drug.timeMultiplier > 1 ? '/' + (drug.timeMultiplier === 1440 ? 'min' : 'hr') : '') + '/dose';
+            document.getElementById('resultsFooter').classList.toggle('hidden', screen !== 'results');
+            window.scrollTo(0, 0);
         }
 
         function selectTreatment() {
-            const name = document.getElementById('babyName').value.trim();
-            const weight = parseFloat(document.getElementById('babyWeight').value);
+            const name = document.getElementById('babyName').value.trim() || 'مجهول';
+            let weightRaw = document.getElementById('babyWeight').value;
+            let weight = parseFloat(normalizeNumerals(weightRaw));
             const errorEl = document.getElementById('errorMessage');
-            if (!weight || weight <= 0) {
+
+            if (isNaN(weight) || weight <= 0) {
                 errorEl.textContent = 'الرجاء إدخال وزن صحيح';
                 errorEl.classList.remove('hidden');
                 return;
             }
+
             errorEl.classList.add('hidden');
             patientInfo = { name, weight };
             updateDrugSelectionUI();
@@ -210,13 +235,28 @@
         }
 
         function updateDrugSelectionUI() {
-            document.getElementById('selectionPatientName').textContent = patientInfo.name || 'مجهول';
+            document.getElementById('selectionPatientName').textContent = patientInfo.name;
             document.getElementById('selectionPatientWeight').textContent = patientInfo.weight;
-            document.getElementById('headerPatientName').textContent = patientInfo.name || 'مجهول';
+            document.getElementById('headerPatientName').textContent = patientInfo.name;
             document.getElementById('headerPatientWeight').textContent = patientInfo.weight + ' كجم';
             document.getElementById('selectedDrugsCount').textContent = selectedDrugs.length + ' دواء محدد';
             document.getElementById('calculateBtn').disabled = selectedDrugs.length === 0;
             renderDrugGrid();
+        }
+
+        function renderDrugGrid() {
+            const grid = document.getElementById('drugGrid');
+            grid.innerHTML = DRUGS.map(drug => {
+                const selected = selectedDrugs.includes(drug.id);
+                return `
+                    <div onclick="toggleDrug(${drug.id})" class="drug-btn p-6 rounded-xl border-2 cursor-pointer ${selected ? 'bg-gradient-to-l from-sky-500 to-blue-600 border-blue-600 text-white shadow-lg' : 'bg-white border-sky-200 text-sky-800'}">
+                        ${selected ? '<div class="absolute top-2 left-2 bg-white/20 rounded-full w-6 h-6 flex items-center justify-center">✓</div>' : ''}
+                        <div class="text-left" dir="ltr">
+                            <h3 class="text-xl font-bold mb-1">${drug.name}</h3>
+                            <p class="text-sm ${selected ? 'text-white/80' : 'text-sky-500'}">${drug.dosePerKg} ${drug.unit}/kg</p>
+                        </div>
+                    </div>`;
+            }).join('');
         }
 
         function toggleDrug(id) {
@@ -228,96 +268,57 @@
             updateDrugSelectionUI();
         }
 
-        function renderDrugGrid() {
-            const grid = document.getElementById('drugGrid');
-            grid.innerHTML = DRUGS.map(drug => {
-                const selected = selectedDrugs.includes(drug.id);
-                return '<div onclick="toggleDrug(' + drug.id + ')" class="drug-btn p-6 rounded-xl border-2 cursor-pointer ' + (selected ? 'bg-gradient-to-l from-sky-500 to-blue-600 border-blue-600 text-white shadow-xl' : 'bg-white border-sky-200 hover:border-sky-400 text-sky-800') + '">' +
-                    (selected ? '<div class="absolute top-3 left-3 bg-white/20 rounded-full p-1">✓</div>' : '') +
-                    '<div class="text-left" dir="ltr">' +
-                    '<h3 class="text-xl font-bold mb-2">' + drug.name + '</h3>' +
-                    '<p class="text-sm font-semibold ' + (selected ? 'text-white/90' : 'text-sky-600') + '">' + formatDrugRule(drug) + '</p>' +
-                    '</div></div>';
-            }).join('');
-        }
-
         function calculateDoses() {
-            if (selectedDrugs.length === 0 || !patientInfo) return;
-            results = [];
-            selectedDrugs.forEach(id => {
-                const drug = DRUGS.find(d => d.id === id);
-                if (!drug) return;
-                let totalDose = patientInfo.weight * drug.dosePerKg * drug.timeMultiplier;
-                let displayDose = totalDose;
-                let displayUnit = drug.unit;
-                if (drug.unit === 'IU') {
-                    displayDose = Math.round(totalDose * 1000) + ',000';
-                    displayUnit = 'IU';
-                } else if (drug.unit === 'mcg' && totalDose > 1000) {
-                    displayDose = totalDose / 1000;
-                    displayUnit = 'mg';
-                }
-                const volume = Math.round((patientInfo.weight * drug.factor) * 10) / 10;
-                const methodTemplate = METHODS[drug.methodIndex];
-                const hasDilution = methodTemplate.includes('##');
-                const dilution = hasDilution ? 20 - volume : null;
-                let method = methodTemplate.replace(/\*\*/g, formatNumber(volume));
-                if (hasDilution && dilution !== null) {
-                    method = method.replace(/##/g, formatNumber(dilution));
-                }
-                results.push({ drug, totalDose, displayDose, displayUnit, volume, dilution, method });
-            });
-            updateResultsUI();
-            showScreen('results');
-        }
-
-        function updateResultsUI() {
-            document.getElementById('resultsPatientName').textContent = patientInfo.name || 'مجهول';
-            document.getElementById('resultsPatientWeight').textContent = patientInfo.weight;
-            document.getElementById('resultsDrugsCount').textContent = results.length;
             const grid = document.getElementById('resultsGrid');
-            grid.innerHTML = results.map((result, i) => {
-                const doseDisplay = typeof result.displayDose === 'string' ? result.displayDose : formatNumber(result.displayDose);
-                return '<div class="shadow-lg border-emerald-200 rounded-xl bg-white">' +
-                    '<div class="bg-gradient-to-l from-emerald-50 to-teal-50 border-b border-emerald-200 p-4">' +
-                    '<div class="flex items-center gap-3" dir="ltr">' +
-                    '<div class="bg-gradient-to-l from-emerald-500 to-teal-600 text-white text-xl font-bold w-12 h-12 rounded-full flex items-center justify-center shadow-md">' + (i + 1) + '</div>' +
-                    '<div class="flex-1 text-left">' +
-                    '<h3 class="text-3xl text-emerald-800 font-black mb-1">' + result.drug.name + '</h3>' +
-                    '<p class="text-emerald-700 text-base">' + formatDrugRule(result.drug) + '</p>' +
-                    '</div></div>' +
-                    '<div class="p-4 space-y-4">' +
-                    '<div class="bg-gradient-to-l from-emerald-100 to-teal-100 rounded-lg p-4">' +
-                    '<p class="text-sm text-emerald-700 mb-1">الجرعة الكلية</p>' +
-                    '<p class="text-3xl font-bold text-emerald-900">' + doseDisplay + ' ' + result.displayUnit + '</p>' +
-                    '</div>' +
-                    '<div class="bg-emerald-50 border-2 border-emerald-200 rounded-lg p-4" dir="rtl">' +
-                    '<p class="text-sm text-emerald-700 mb-2 font-semibold">طريقة الإعطاء</p>' +
-                    '<p class="text-base text-sky-800 leading-relaxed">' + result.method + '</p>' +
-                    '</div></div></div>';
+            document.getElementById('resultsPatientName').textContent = patientInfo.name;
+            document.getElementById('resultsPatientWeight').textContent = patientInfo.weight;
+            
+            grid.innerHTML = selectedDrugs.map((id, index) => {
+                const drug = DRUGS.find(d => d.id === id);
+                let totalDose = patientInfo.weight * drug.dosePerKg * drug.timeMultiplier;
+                let displayDose = drug.unit === 'IU' ? Math.round(totalDose).toLocaleString() : (Math.round(totalDose * 100) / 100);
+                
+                let volume = Math.round((patientInfo.weight * drug.factor) * 10) / 10;
+                let method = METHODS[drug.methodIndex].replace(/\*\*/g, volume);
+                if (method.includes('##')) {
+                    method = method.replace(/##/g, (20 - volume).toFixed(1));
+                }
+
+                return `
+                    <div class="shadow-md border-2 border-emerald-100 bg-white rounded-xl overflow-hidden">
+                        <div class="bg-emerald-50 p-4 border-b border-emerald-100 flex items-center gap-3">
+                            <span class="bg-emerald-500 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold">${index + 1}</span>
+                            <h3 class="text-xl font-bold text-emerald-900" dir="ltr">${drug.name}</h3>
+                        </div>
+                        <div class="p-5 space-y-4">
+                            <div class="bg-emerald-100/50 rounded-lg p-3">
+                                <p class="text-xs text-emerald-600 mb-1">الجرعة الكلية</p>
+                                <p class="text-2xl font-black text-emerald-800">${displayDose} ${drug.unit}</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-emerald-600 mb-2 font-bold">طريقة الإعطاء:</p>
+                                <p class="text-gray-800 leading-relaxed">${method}</p>
+                            </div>
+                        </div>
+                    </div>`;
             }).join('');
+            
+            showScreen('results');
         }
 
         function goBack() {
             if (currentScreen === 'results') {
-                currentScreen = 'drugSelection';
                 showScreen('drugSelection');
             } else if (currentScreen === 'drugSelection') {
-                currentScreen = 'greeting';
-                selectedDrugs = [];
-                patientInfo = null;
                 showScreen('greeting');
             }
         }
 
         function startOver() {
-            currentScreen = 'greeting';
             selectedDrugs = [];
             patientInfo = null;
-            results = [];
             document.getElementById('babyName').value = '';
             document.getElementById('babyWeight').value = '';
-            document.getElementById('errorMessage').classList.add('hidden');
             showScreen('greeting');
         }
     </script>
