@@ -51,7 +51,7 @@
                 </div>
                 <div class="text-center flex-[2]">
                     <h1 class="text-2xl md:text-4xl font-bold">حاسبة الجرعات</h1>
-                    <p class="text-sky-100 text-sm md:text-base">وحدات رعاية حديثي الولادة</p>
+                    <p class="text-sky-100 text-sm md:text-base">خاص بوحدة العناية المركزة لحديثي الولادة (الخدج) لمستشفى بغداد التعليمي</p>
                 </div>
                 <div class="flex-1 flex justify-end">
                     <div id="headerPatientInfo" class="bg-white/20 rounded-lg px-3 py-2 flex items-center gap-2 hidden">
@@ -169,26 +169,32 @@
             { id: 2, name: 'Gentamicin', nameAr: 'جنتاميسين', dosePerKg: 5, unit: 'mg', factor: 12.5, methodIndex: 2, timeMultiplier: 1 },
             { id: 3, name: 'Caffeine Loading', nameAr: 'كافيين تحميلي', dosePerKg: 20, unit: 'mg', factor: 2, methodIndex: 3, timeMultiplier: 1 },
             { id: 4, name: 'Caffeine Maintenance', nameAr: 'كافيين صيانة', dosePerKg: 10, unit: 'mg', factor: 50, methodIndex: 4, timeMultiplier: 1 },
-            { id: 5, name: 'Colistin Loading', nameAr: 'كوليستين تحميلي', dosePerKg: 150, unit: 'IU', factor: 30, methodIndex: 5, timeMultiplier: 1 },
-            { id: 6, name: 'Colistin Maintenance', nameAr: 'كوليستين صيانة', dosePerKg: 37.5, unit: 'IU', factor: 7.5, methodIndex: 6, timeMultiplier: 1 },
+            { id: 5, name: 'Colistin Loading', nameAr: 'كوليستين تحميلي', dosePerKg: 150000, unit: 'IU', factor: 30, methodIndex: 5, timeMultiplier: 1 },
+            { id: 6, name: 'Colistin Maintenance', nameAr: 'كوليستين صيانة', dosePerKg: 37500, unit: 'IU', factor: 7.5, methodIndex: 6, timeMultiplier: 1 },
             { id: 7, name: 'Tigecycline', nameAr: 'تيجيسايكلين', dosePerKg: 2, unit: 'mg', factor: 2, methodIndex: 7, timeMultiplier: 1 },
             { id: 8, name: 'Meropenem', nameAr: 'ميروبينيم', dosePerKg: 40, unit: 'mg', factor: 1.6, methodIndex: 8, timeMultiplier: 1 },
             { id: 9, name: 'Dopamine', nameAr: 'دوبامين', dosePerKg: 5, unit: 'mcg', factor: 36, methodIndex: 9, timeMultiplier: 1440 },
-            { id: 10, name: 'Dexmedetomidine', nameAr: 'ديكسميدتوميدين', dosePerKg: 0.3, unit: 'mcg', factor: 14.4, methodIndex: 10, timeMultiplier: 24 }
+            { id: 10, name: 'Dexmedetomidine', nameAr: 'ديكسميدتوميدين', dosePerKg: 0.3, unit: 'mcg', factor: 14.4, methodIndex: 10, timeMultiplier: 24 },
+            { id: 11, name: 'Dexmedetomidine Loading', nameAr: 'ديكسميدتوميدين تحميلي', dosePerKg: 0.1, unit: 'mcg', factor: 5, methodIndex: 11, timeMultiplier: 1 },
+            { id: 12, name: 'Midazolam Loading', nameAr: 'ميدازولام تحميلي', dosePerKg: 0.1, unit: 'mg', factor: 10, methodIndex: 12, timeMultiplier: 1 },
+            { id: 13, name: 'Midazolam Maintenance', nameAr: 'ميدازولام صيانة', dosePerKg: 0.03, unit: 'mg', factor: 14.4, methodIndex: 13, timeMultiplier: 24 }
         ];
 
         // Administration Methods
         const METHODS = {
-            1: 'تسحب ** مل وتعطى خلال ٥ دقائق',
-            2: 'تسحب ** وحدة انسولين وتخفف بـ ٥ سيسي كلوكوز وتر ويعطى خلال ١٠ دقائق',
-            3: 'تسحب ** مل وتضاف إلى ## سيسي كلوكوز وتر، تفرغ ١٠ سيسي ويعطى ١٠ سيسي',
-            4: 'تسحب ** وحدة انسولين وتخفف بـ ٥ سيسي كلوكوز وتر ويعطى خلال ١٠ دقائق',
-            5: 'تسحب ** وحدة انسولين وتخفف بـ ٥ سيسي كلوكوز وتر ويعطى خلال ٥ دقائق',
-            6: 'تسحب ** وحدة انسولين وتخفف بـ ٥ سيسي كلوكوز وتر ويعطى خلال ٥ دقائق',
-            7: 'تسحب ** وتضاف إلى ## سيسي كلوكوز وتر، تفرغ ١٠ سيسي ويعطى ١٠ سيسي',
-            8: 'تسحب ** وتضاف إلى ## سيسي كلوكوز وتر، تفرغ ١٠ سيسي ويعطى ١٠ سيسي',
-            9: 'تسحب ** وحدة انسولين وتضاف إلى 20 سيسي كلوكوز وتر، تفرغ ١٠ سيسي ويعطى ١٠ سيسي',
-            10: 'تسحب ** وحدة انسولين وتضاف إلى 20 سيسي كلوكوز وتر، تفرغ ١٠ سيسي ويعطى ١٠ سيسي'
+            1: 'تسحب ** مل وتعطى خلال 5 دقائق',
+            2: 'تسحب ** وحدة انسولين وتخفف بـ 5 سيسي كلوكوز وتر ويعطى خلال 10 دقائق',
+            3: 'تسحب ** مل وتضاف إلى ## سيسي كلوكوز وتر، تفرغ 10 سيسي ويعطى 10 سيسي',
+            4: 'تسحب ** وحدة انسولين وتخفف بـ 5 سيسي كلوكوز وتر ويعطى خلال 10 دقائق',
+            5: 'تسحب ** وحدة انسولين وتخفف بـ 5 سيسي كلوكوز وتر ويعطى خلال 5 دقائق',
+            6: 'تسحب ** وحدة انسولين وتخفف بـ 5 سيسي كلوكوز وتر ويعطى خلال 5 دقائق',
+            7: 'تسحب ** وتضاف إلى ## سيسي كلوكوز وتر، تفرغ 10 سيسي ويعطى 10 سيسي',
+            8: 'تسحب ** وتضاف إلى ## سيسي كلوكوز وتر، تفرغ 10 سيسي ويعطى 10 سيسي',
+            9: 'تسحب ** وحدة انسولين وتضاف إلى 20 سيسي كلوكوز وتر، تفرغ 10 سيسي ويعطى 10 سيسي خلال 24 ساعة *انتباه خلال 24 ساعة*',
+            10: 'تسحب ** وحدة انسولين وتضاف إلى 20 سيسي كلوكوز وتر، تفرغ 10 سيسي ويعطى 10 سيسي خلال 24 ساعة *انتباه خلال 24 ساعة*',
+            11: 'تسحب 10 يونت دكس من الامبولة وتخفف الى 5 مل، تسحب ** وحدة انسولين من المخفف وتضاف الى 3 مل نورمال سلاين وتعطى وريدي مباشر خلال 5 دقائق',
+            12: 'تسحب 1 مل ميدازولام من الامبولة وتخفف الى 5 مل، تسحب ** وحدة انسولين من المخفف وتضاف الى 3 مل نورمال سلاين وتعطى وريدي مباشر خلال 5 دقائق',
+            13: 'تسحب ** وحدة انسولين وتضاف إلى 20 سيسي كلوكوز وتر، تفرغ 10 سيسي ويعطى 10 سيسي خلال 24 ساعة *انتباه خلال 24 ساعة*'
         };
 
         // State
@@ -215,7 +221,7 @@
         // Format dose based on unit type
         function formatDose(dose, unit) {
             if (unit === 'IU') {
-                // IU should be rounded to nearest whole number
+                // IU should be rounded to nearest whole number with thousand separators
                 return Math.round(dose).toLocaleString();
             }
             // Other units: whole numbers with no decimals, fractions with 1 decimal place
@@ -310,12 +316,25 @@
             grid.innerHTML = selectedDrugs.map((id, index) => {
                 const drug = DRUGS.find(d => d.id === id);
                 let totalDose = patientInfo.weight * drug.dosePerKg * drug.timeMultiplier;
-                let displayDose = formatDose(totalDose, drug.unit);
                 
-                let volume = Math.round((patientInfo.weight * drug.factor) * 10) / 10;
+                // Convert Dopamine (ID 9) total dose from mcg to mg
+                const isDopamine = drug.id === 9;
+                if (isDopamine) {
+                    totalDose = totalDose / 1000;
+                }
+                
+                // Use 'mg' as unit for Dopamine display, otherwise use drug.unit
+                const displayUnit = isDopamine ? 'mg' : drug.unit;
+                let displayDose = formatDose(totalDose, displayUnit);
+                
+                // Round volume to nearest whole number for specific drug IDs: 2, 4, 5, 6, 9, 10, 11, 12, 13
+                const volumeRoundToWhole = [2, 4, 5, 6, 9, 10, 11, 12, 13].includes(drug.id);
+                let volume = volumeRoundToWhole 
+                    ? Math.round(patientInfo.weight * drug.factor)
+                    : Math.round((patientInfo.weight * drug.factor) * 10) / 10;
                 let method = METHODS[drug.methodIndex].replace(/\*\*/g, volume);
                 if (method.includes('##')) {
-                    method = method.replace(/##/g, (20 - volume).toFixed(1));
+                    method = method.replace(/##/g, volumeRoundToWhole ? (20 - volume) : (20 - volume).toFixed(1));
                 }
 
                 return `
@@ -327,7 +346,7 @@
                         <div class="p-5 space-y-4">
                             <div class="bg-emerald-100/50 rounded-lg p-3">
                                 <p class="text-xs text-emerald-600 mb-1">الجرعة الكلية</p>
-                                <p class="text-2xl font-black text-emerald-800">${displayDose} ${drug.unit}</p>
+                                <p class="text-2xl font-black text-emerald-800">${displayDose} ${displayUnit}</p>
                             </div>
                             <div>
                                 <p class="text-xs text-emerald-600 mb-2 font-bold">طريقة الإعطاء:</p>
