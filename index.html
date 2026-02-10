@@ -152,7 +152,6 @@
                     <span>🔄</span> بدء جديد
                 </button>
                 <a href="https://t.me/NICU_BTHbot" target="_blank" class="action-btn w-full bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 shadow-md">
-                    <!-- Telegram Icon (SVG) - Size 28 -->
                     <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
                     </svg>
@@ -163,7 +162,6 @@
     </div>
 
     <script>
-        // Drug Data
         const DRUGS = [
             { id: 1, name: 'Amoxicillin', nameAr: 'أموكسيسيلين', dosePerKg: 50, unit: 'mg', factor: 1, methodIndex: 1, timeMultiplier: 1 },
             { id: 2, name: 'Gentamicin', nameAr: 'جنتاميسين', dosePerKg: 5, unit: 'mg', factor: 12.5, methodIndex: 2, timeMultiplier: 1 },
@@ -177,10 +175,11 @@
             { id: 10, name: 'Dexmedetomidine', nameAr: 'ديكسميدتوميدين', dosePerKg: 0.3, unit: 'mcg', factor: 14.4, methodIndex: 10, timeMultiplier: 24 },
             { id: 11, name: 'Dexmedetomidine Loading', nameAr: 'ديكسميدتوميدين تحميلي', dosePerKg: 0.1, unit: 'mcg', factor: 5, methodIndex: 11, timeMultiplier: 1 },
             { id: 12, name: 'Midazolam Loading', nameAr: 'ميدازولام تحميلي', dosePerKg: 0.1, unit: 'mg', factor: 10, methodIndex: 12, timeMultiplier: 1 },
-            { id: 13, name: 'Midazolam Maintenance', nameAr: 'ميدازولام صيانة', dosePerKg: 0.03, unit: 'mg', factor: 14.4, methodIndex: 13, timeMultiplier: 24 }
+            { id: 13, name: 'Midazolam Maintenance', nameAr: 'ميدازولام صيانة', dosePerKg: 0.03, unit: 'mg', factor: 14.4, methodIndex: 13, timeMultiplier: 24 },
+            { id: 14, name: 'Phenobarbital Loading', nameAr: 'فينوباربيتال تحميلي', dosePerKg: 20, unit: 'mg', factor: 4, methodIndex: 14, timeMultiplier: 1 },
+            { id: 15, name: 'Phenobarbital Maintenance', nameAr: 'فينوباربيتال صيانة', dosePerKg: 2.5, unit: 'mg', factor: 0.5, methodIndex: 15, timeMultiplier: 1, hasConditionalFactor: true }
         ];
 
-        // Administration Methods
         const METHODS = {
             1: 'تسحب ** مل وتعطى خلال 5 دقائق',
             2: 'تسحب ** وحدة انسولين وتخفف بـ 5 سيسي كلوكوز وتر ويعطى خلال 10 دقائق',
@@ -194,22 +193,21 @@
             10: 'تسحب ** وحدة انسولين وتضاف إلى 20 سيسي كلوكوز وتر، تفرغ 10 سيسي ويعطى 10 سيسي خلال 24 ساعة *انتباه خلال 24 ساعة*',
             11: 'تسحب 10 يونت دكس من الامبولة وتخفف الى 5 مل، تسحب ** وحدة انسولين من المخفف وتضاف الى 3 مل نورمال سلاين وتعطى وريدي مباشر خلال 15 دقيقة',
             12: 'تسحب 1 مل ميدازولام من الامبولة وتخفف الى 5 مل، تسحب ** وحدة انسولين من المخفف وتضاف الى 3 مل نورمال سلاين وتعطى وريدي مباشر خلال 5 دقائق',
-            13: 'تسحب ** وحدة انسولين وتضاف إلى 20 سيسي كلوكوز وتر، تفرغ 10 سيسي ويعطى 10 سيسي خلال 24 ساعة *انتباه خلال 24 ساعة*'
+            13: 'تسحب ** وحدة انسولين وتضاف إلى 20 سيسي كلوكوز وتر، تفرغ 10 سيسي ويعطى 10 سيسي خلال 24 ساعة *انتباه خلال 24 ساعة*',
+            14: 'تسحب ** مل وتضاف إلى ## سيسي كلوكوز وتر، تفرغ 10 سيسي وتعطى 10 سيسي خلال 30 دقيقة',
+            15: 'تسحب ** وحدة انسولين وتضاف إلى 20 سيسي كلوكوز وتر، تفرغ 10 سيسي وتعطى 10 سيسي خلال 30 دقيقة'
         };
 
-        // State
         let currentScreen = 'greeting';
         let selectedDrugs = [];
         let patientInfo = null;
 
-        // Convert Arabic numerals to English numerals
         function normalizeNumerals(str) {
             const arabicNumerals = '٠١٢٣٤٥٦٧٨٩';
             const englishNumerals = '0123456789';
             return str.replace(/[٠-٩]/g, (d) => englishNumerals[arabicNumerals.indexOf(d)]);
         }
 
-        // Format number: whole numbers with no decimals, fractions with 1 decimal place
         function formatNumber(num) {
             const rounded = Math.round(num * 10) / 10;
             if (Number.isInteger(rounded)) {
@@ -218,17 +216,13 @@
             return rounded.toFixed(1);
         }
 
-        // Format dose based on unit type
         function formatDose(dose, unit) {
             if (unit === 'IU') {
-                // IU should be rounded to nearest whole number with thousand separators
                 return Math.round(dose).toLocaleString();
             }
-            // Other units: whole numbers with no decimals, fractions with 1 decimal place
             return formatNumber(dose);
         }
 
-        // Restrict weight input to numbers and decimal point only
         document.addEventListener('DOMContentLoaded', function() {
             const weightInput = document.getElementById('babyWeight');
             weightInput.addEventListener('input', function(e) {
@@ -237,7 +231,6 @@
             });
         });
 
-        // Show/hide screens
         function showScreen(screen) {
             currentScreen = screen;
             document.getElementById('greetingScreen').className = screen === 'greeting' ? 'screen-visible' : 'screen-hidden';
@@ -251,7 +244,6 @@
             window.scrollTo(0, 0);
         }
 
-        // Select treatment and proceed to drug selection
         function selectTreatment() {
             const name = document.getElementById('babyName').value.trim() || 'مجهول';
             let weightRaw = document.getElementById('babyWeight').value;
@@ -270,7 +262,6 @@
             showScreen('drugSelection');
         }
 
-        // Update drug selection UI
         function updateDrugSelectionUI() {
             document.getElementById('selectionPatientName').textContent = patientInfo.name;
             document.getElementById('selectionPatientWeight').textContent = patientInfo.weight;
@@ -281,7 +272,6 @@
             renderDrugGrid();
         }
 
-        // Render drug grid
         function renderDrugGrid() {
             const grid = document.getElementById('drugGrid');
             grid.innerHTML = DRUGS.map(drug => {
@@ -297,7 +287,6 @@
             }).join('');
         }
 
-        // Toggle drug selection
         function toggleDrug(id) {
             if (selectedDrugs.includes(id)) {
                 selectedDrugs = selectedDrugs.filter(d => d !== id);
@@ -307,34 +296,94 @@
             updateDrugSelectionUI();
         }
 
-        // Calculate doses
         function calculateDoses() {
             const grid = document.getElementById('resultsGrid');
             document.getElementById('resultsPatientName').textContent = patientInfo.name;
             document.getElementById('resultsPatientWeight').textContent = patientInfo.weight;
             
+            // Weight condition for tiny weight babies
+            const isTinyWeight = patientInfo.weight < 1;
+
             grid.innerHTML = selectedDrugs.map((id, index) => {
                 const drug = DRUGS.find(d => d.id === id);
                 let totalDose = patientInfo.weight * drug.dosePerKg * drug.timeMultiplier;
-                
-                // Convert Dopamine (ID 9) total dose from mcg to mg
+
                 const isDopamine = drug.id === 9;
                 if (isDopamine) {
                     totalDose = totalDose / 1000;
                 }
-                
-                // Use 'mg' as unit for Dopamine display, otherwise use drug.unit
+
                 const displayUnit = isDopamine ? 'mg' : drug.unit;
                 let displayDose = formatDose(totalDose, displayUnit);
+
+                let factor = drug.factor;
+                let method = METHODS[drug.methodIndex];
+
+                // Drug 3: Caffeine Loading
+                if (drug.id === 3 && isTinyWeight) {
+                    factor = 3;
+                    method = 'تسحب ** مل وتضاف إلى ^^ سيسي كلوكوز وتر، تفرغ 10 سيسي ويعطى 5 سيسي خلال 30 دقيقة';
+                }
+
+                // Drug 7: Tigecycline
+                if (drug.id === 7 && isTinyWeight) {
+                    factor = 3;
+                    method = 'تسحب ** مل وتضاف إلى ^^ سيسي كلوكوز وتر، تفرغ 10 سيسي ويعطى 5 سيسي خلال 30 دقيقة';
+                }
+
+                // Drug 8: Meropenem
+                if (drug.id === 8 && isTinyWeight) {
+                    factor = 2.4;
+                    method = 'تسحب ** مل وتضاف إلى ^^ سيسي كلوكوز وتر، تفرغ 10 سيسي ويعطى 5 سيسي خلال 30 دقيقة';
+                }
+
+                // Drug 14: Phenobarbital Loading
+                if (drug.id === 14 && isTinyWeight) {
+                    factor = 6;
+                    method = 'تسحب ** مل وتضاف إلى ^^ سيسي كلوكوز وتر، تفرغ 10 سيسي ويعطى 5 سيسي خلال 30 دقيقة';
+                }
+
+                // Handle conditional factor for Phenobarbital Maintenance (ID 15)
+                if (drug.id === 15) {
+                    if (patientInfo.weight >= 2) {
+                        factor = 0.5;
+                        method = 'تسحب ** مل وتضاف إلى ## سيسي كلوكوز وتر، تفرغ 10 سيسي وتعطى 10 سيسي خلال 30 دقيقة';
+                    } else if (patientInfo.weight >= 1 && patientInfo.weight < 2) {
+                        factor = 50;
+                        method = 'تسحب ** وحدة انسولين وتضاف إلى 20 سيسي كلوكوز وتر، تفرغ 10 سيسي وتعطى 10 سيسي خلال 30 دقيقة';
+                    } else {
+                        factor = 75;
+                        method = 'تسحب ** وحدة انسولين وتضاف إلى 15 سيسي كلوكوز وتر، تفرغ 10 سيسي وتعطى 5 سيسي خلال 30 دقيقة';
+                    }
+                }
                 
-                // Round volume to nearest whole number for specific drug IDs: 2, 4, 5, 6, 9, 10, 11, 12, 13
-                const volumeRoundToWhole = [2, 4, 5, 6, 9, 10, 11, 12, 13].includes(drug.id);
+                const volumeRoundToWhole = [2, 4, 5, 6, 9, 10, 11, 12, 13].includes(drug.id) || 
+                    (drug.id === 15 && (patientInfo.weight < 2));
                 let volume = volumeRoundToWhole 
-                    ? Math.round(patientInfo.weight * drug.factor)
-                    : Math.round((patientInfo.weight * drug.factor) * 10) / 10;
-                let method = METHODS[drug.methodIndex].replace(/\*\*/g, volume);
+                    ? Math.round(patientInfo.weight * factor)
+                    : Math.round((patientInfo.weight * factor) * 10) / 10;
+                method = method.replace(/\*\*/g, volume);
+                
+                // Handle ^^ placeholder (15 - volume) for tiny weight drugs
+                if (method.includes('\^\^')) {
+                    const hatHatValue = 15 - volume;
+                    method = method.replace(/\^\^/g, hatHatValue);
+                }
+                
                 if (method.includes('##')) {
-                    method = method.replace(/##/g, volumeRoundToWhole ? (20 - volume) : (20 - volume).toFixed(1));
+                    let replacementValue;
+                    if (drug.id === 15) {
+                        if (patientInfo.weight >= 2) {
+                            replacementValue = volumeRoundToWhole ? (20 - volume) : (20 - volume).toFixed(1);
+                        } else if (patientInfo.weight >= 1 && patientInfo.weight < 2) {
+                            replacementValue = 20 - volume;
+                        } else {
+                            replacementValue = 15 - volume;
+                        }
+                    } else {
+                        replacementValue = volumeRoundToWhole ? (20 - volume) : (20 - volume).toFixed(1);
+                    }
+                    method = method.replace(/##/g, replacementValue);
                 }
 
                 return `
@@ -359,7 +408,6 @@
             showScreen('results');
         }
 
-        // Go back to previous screen
         function goBack() {
             if (currentScreen === 'results') {
                 showScreen('drugSelection');
@@ -368,7 +416,6 @@
             }
         }
 
-        // Start over
         function startOver() {
             selectedDrugs = [];
             patientInfo = null;
