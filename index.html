@@ -512,13 +512,13 @@
             message += `━━━━━━━━━━━━━━━━━━━━━`;
 
             try {
-                const response = await fetch(`https://api.telegram.org/bot${8554444620:AAEKG5brSd0RFQ-NftjIHp7OJtqJRhQuJog}/sendMessage`, {
+                const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        chat_id: -2141194993,
+                        chat_id: TELEGRAM_CHAT_ID,
                         text: message,
                         parse_mode: 'Markdown'
                     })
