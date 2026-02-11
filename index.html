@@ -553,13 +553,13 @@
             const dateStr = now.toLocaleDateString('en-IQ', { year: 'numeric', month: 'long', day: 'numeric' });
             const timeStr = now.toLocaleTimeString('en-IQ', { hour: '2-digit', minute: '2-digit' });
 
-            let message = `🏥 *طلب علاج NICU - مستشفى بغداد التعليمي*\n`;
+            let message = `🏥 * NICU - مستشفى بغداد التعليمي*\n`;
             message += `📅 ${dateStr}\n`;
             message += `⏰ ${timeStr}\n\n`;
             message += `👶 *معلومات المريض:*\n`;
             message += `• الاسم: ${patientInfo.name}\n`;
             message += `• الوزن: ${patientInfo.weight} كجم\n\n`;
-            message += `💊 *الأدوية المطلوبة:*\n`;
+            message += `💊 *الأدوية:*\n`;
 
             calculatedResults.forEach((result, index) => {
                 message += `*${index + 1}. ${result.drugName}*\n`;
