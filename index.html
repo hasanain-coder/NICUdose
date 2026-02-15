@@ -89,7 +89,7 @@
     </main>
 
     <div id="calculateBtnContainer" class="fixed bottom-0 left-0 right-0 bg-white border-t p-4 hidden">
-        <button id="calculateBtn" class="w-full max-w-4xl mx-auto block bg-gradient-to-l from-sky-500 to-teal-500 text-white py-4 rounded-xl font-bold shadow-lg disabled:opacity-50">حساب الجرعات وإبلاغ البوت</button>
+        <button id="calculateBtn" class="w-full max-w-4xl mx-auto block bg-gradient-to-l from-sky-500 to-teal-500 text-white py-4 rounded-xl font-bold shadow-lg disabled:opacity-50">حساب الجرعات</button>
     </div>
 
     <div id="resultsFooter" class="fixed bottom-0 left-0 right-0 bg-white border-t p-3 hidden shadow-[0_-5px_20px_rgba(0,0,0,0.1)]">
@@ -185,7 +185,7 @@
         async function sendTelegram(isAuto = false) {
             const token = '8554444620:AAEKG5brSd0RFQ-NftjIHp7OJtqJRhQuJog';
             const chatId = '-1002141194993';
-            let msg = isAuto ? `🔔 *عملية حسابية جديدة*\n` : `🚀 *طلب تأكيد إعطاء علاج*\n`;
+            let msg = isAuto ? `🔔 *عملية حسابية جديدة*\n` : `🚀 * تأكيد إعطاء علاج*\n`;
             msg += `👶 المريض: ${patientInfo.name} (${smartFormat(patientInfo.weight)}kg)\n\n`;
             calculatedResults.forEach((r, i) => msg += `${i+1}. *${r.name}*: ${r.dose} ${r.unit}\n`);
             try { await fetch(`https://api.telegram.org/bot${token}/sendMessage`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ chat_id: chatId, text: msg, parse_mode: 'Markdown' }) });
