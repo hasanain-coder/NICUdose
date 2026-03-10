@@ -151,150 +151,22 @@
 
     <script>
         const DRUGS = [
-            {
-                id: 1,
-                name: 'Amoxicillin',
-                dosePerKg: 50,
-                unit: 'mg',
-                factor: 1,
-                methodIndex: 1,
-                timeMultiplier: 1
-            },
-            {
-                id: 2,
-                name: 'Gentamicin',
-                dosePerKg: 5,
-                unit: 'mg',
-                factor: 12.5,
-                methodIndex: 2,
-                timeMultiplier: 1
-            },
-            {
-                id: 3,
-                name: 'Caffeine Loading',
-                dosePerKg: 20,
-                unit: 'mg',
-                factor: 2,
-                methodIndex: 3,
-                timeMultiplier: 1
-            },
-            {
-                id: 4,
-                name: 'Caffeine Maintenance',
-                dosePerKg: 10,
-                unit: 'mg',
-                factor: 50,
-                methodIndex: 4,
-                timeMultiplier: 1
-            },
-            {
-                id: 5,
-                name: 'Colistin Loading',
-                dosePerKg: 150000,
-                unit: 'IU',
-                factor: 30,
-                methodIndex: 5,
-                timeMultiplier: 1
-            },
-            {
-                id: 6,
-                name: 'Colistin Maintenance',
-                dosePerKg: 37500,
-                unit: 'IU',
-                factor: 7.5,
-                methodIndex: 6,
-                timeMultiplier: 1
-            },
-            {
-                id: 7,
-                name: 'Tigecycline',
-                dosePerKg: 2,
-                unit: 'mg',
-                factor: 2,
-                methodIndex: 7,
-                timeMultiplier: 1
-            },
-            {
-                id: 8,
-                name: 'Meropenem',
-                dosePerKg: 40,
-                unit: 'mg',
-                factor: 1.6,
-                methodIndex: 8,
-                timeMultiplier: 1
-            },
-            {
-                id: 9,
-                name: 'Dopamine',
-                dosePerKg: 5,
-                unit: 'mcg',
-                factor: 36,
-                methodIndex: 9,
-                timeMultiplier: 1440
-            },
-            {
-                id: 10,
-                name: 'Dexmedetomidine',
-                dosePerKg: 0.3,
-                unit: 'mcg',
-                factor: 14.4,
-                methodIndex: 10,
-                timeMultiplier: 24
-            },
-            {
-                id: 11,
-                name: 'Dexmedetomidine Loading',
-                dosePerKg: 0.1,
-                unit: 'mcg',
-                factor: 5,
-                methodIndex: 11,
-                timeMultiplier: 1
-            },
-            {
-                id: 12,
-                name: 'Midazolam Loading',
-                dosePerKg: 0.1,
-                unit: 'mg',
-                factor: 10,
-                methodIndex: 12,
-                timeMultiplier: 1
-            },
-            {
-                id: 13,
-                name: 'Midazolam Maintenance',
-                dosePerKg: 0.03,
-                unit: 'mg',
-                factor: 14.4,
-                methodIndex: 13,
-                timeMultiplier: 24
-            },
-            {
-                id: 14,
-                name: 'Phenobarbital Loading',
-                dosePerKg: 20,
-                unit: 'mg',
-                factor: 4,
-                methodIndex: 14,
-                timeMultiplier: 1
-            },
-            {
-                id: 15,
-                name: 'Phenobarbital Maintenance',
-                dosePerKg: 2.5,
-                unit: 'mg',
-                factor: 0.5,
-                methodIndex: 15,
-                timeMultiplier: 1
-            },
-            {
-                id: 16,
-                name: 'Hydrocortisone',
-                dosePerKg: 2,
-                unit: 'mg',
-                factor: 10,
-                methodIndex: 16,
-                timeMultiplier: 1
-            }
+            { id: 1, name: 'Amoxicillin', dosePerKg: 50, unit: 'mg', factor: 1, methodIndex: 1, timeMultiplier: 1 },
+            { id: 2, name: 'Gentamicin', dosePerKg: 5, unit: 'mg', factor: 12.5, methodIndex: 2, timeMultiplier: 1 },
+            { id: 3, name: 'Caffeine Loading', dosePerKg: 20, unit: 'mg', factor: 2, methodIndex: 3, timeMultiplier: 1 },
+            { id: 4, name: 'Caffeine Maintenance', dosePerKg: 10, unit: 'mg', factor: 50, methodIndex: 4, timeMultiplier: 1 },
+            { id: 5, name: 'Colistin Loading', dosePerKg: 150000, unit: 'IU', factor: 30, methodIndex: 5, timeMultiplier: 1 },
+            { id: 6, name: 'Colistin Maintenance', dosePerKg: 37500, unit: 'IU', factor: 7.5, methodIndex: 6, timeMultiplier: 1 },
+            { id: 7, name: 'Tigecycline', dosePerKg: 2, unit: 'mg', factor: 2, methodIndex: 7, timeMultiplier: 1 },
+            { id: 8, name: 'Meropenem', dosePerKg: 40, unit: 'mg', factor: 1.6, methodIndex: 8, timeMultiplier: 1 },
+            { id: 9, name: 'Dopamine', dosePerKg: 5, unit: 'mcg', factor: 36, methodIndex: 9, timeMultiplier: 1440 },
+            { id: 10, name: 'Dexmedetomidine', dosePerKg: 0.3, unit: 'mcg', factor: 14.4, methodIndex: 10, timeMultiplier: 24 },
+            { id: 11, name: 'Dexmedetomidine Loading', dosePerKg: 0.1, unit: 'mcg', factor: 5, methodIndex: 11, timeMultiplier: 1 },
+            { id: 12, name: 'Midazolam Loading', dosePerKg: 0.1, unit: 'mg', factor: 10, methodIndex: 12, timeMultiplier: 1 },
+            { id: 13, name: 'Midazolam Maintenance', dosePerKg: 0.03, unit: 'mg', factor: 14.4, methodIndex: 13, timeMultiplier: 24 },
+            { id: 14, name: 'Phenobarbital Loading', dosePerKg: 20, unit: 'mg', factor: 4, methodIndex: 14, timeMultiplier: 1 },
+            { id: 15, name: 'Phenobarbital Maintenance', dosePerKg: 2.5, unit: 'mg', factor: 0.5, methodIndex: 15, timeMultiplier: 1 },
+            { id: 16, name: 'Hydrocortisone', dosePerKg: 2, unit: 'mg', factor: 10, methodIndex: 16, timeMultiplier: 1 }
         ];
 
         const METHODS = {
@@ -313,7 +185,7 @@
             13: 'تسحب ** وحدة انسولين وتضاف إلى 20 سيسي كلوكوز وتر، تفرغ 10 سيسي ويعطى 10 سيسي خلال 24 ساعة',
             14: 'تخفف الامبولة الى 20 سيسي، يسحب ** مل وتضاف إلى ## سيسي كلوكوز وتر، تفرغ 10 سيسي وتعطى 10 سيسي خلال 30 دقيقة',
             15: 'تخفف الامبولة الى 20 سيسي، يسحب ** وحدة انسولين وتضاف إلى ## سيسي كلوكوز وتر، تفرغ 10 سيسي وتعطى 10 سيسي خلال 30 دقيقة',
-        16:'تسحب ** وحدة انسولين وتخفف الى 3 سيسي مع نورمال سلاين وتعطى خلال 5 دقائق'
+            16: 'تسحب ** وحدة انسولين وتخفف الى 3 سيسي مع نورمال سلاين وتعطى خلال 5 دقائق'
         };
 
         let selectedDrugs = [];
@@ -403,27 +275,23 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             
-            // دالة اختيار العلاج مع شرط الوزن
             document.getElementById('selectTreatmentBtn').onclick = () => {
                 const weightStr = normalizeNum(document.getElementById('babyWeight').value);
                 const weight = parseFloat(weightStr);
                 const err = document.getElementById('errorMessage');
 
-                // التحقق من صحة الرقم
                 if (isNaN(weight) || weight <= 0) {
                     err.innerText = "الرجاء إدخال وزن صحيح";
                     err.classList.remove('hidden');
                     return;
                 }
                 
-                // التحقق من نطاق الوزن (0.5 - 5 كجم)
                 if (weight < 0.5 || weight > 5) {
                     err.innerText = "⚠️ الوزن المسموح به بين 0.5 و 5 كجم فقط";
                     err.classList.remove('hidden');
                     return;
                 }
 
-                // إخفاء الخطأ والمتابعة
                 err.classList.add('hidden');
                 patientInfo = {
                     name: document.getElementById('babyName').value.trim() || 'مجهول',
@@ -450,7 +318,6 @@
                     let factor = drug.factor;
                     let meth = METHODS[drug.methodIndex];
 
-                    // منطق الأطفال الخدج (Tiny Baby)
                     if (isTiny) {
                         if ([3, 7, 8].includes(id)) {
                             factor = (id === 8) ? 2.4 : 3;
@@ -466,7 +333,6 @@
                         }
                     }
 
-                    // منطق الفينوباربيتال الاستمراري
                     if (id === 15) {
                         if (patientInfo.weight >= 2) {
                             factor = 0.5;
@@ -498,7 +364,7 @@
                                 ${smartFormat(dose)} 
                                 <span class="text-sm font-normal text-gray-500">${id === 9 ? 'mg' : drug.unit}</span>
                             </div>
-                            <p class="text-gray-700 leading-relaxed">${finalMeth}</p>
+                            <p class="text-gray-700 leading-relaxed text-right" dir="rtl">${finalMeth}</p>
                         </div>
                     `;
                 }).join('');
