@@ -67,14 +67,14 @@
             }
         }
 
-        /* تنسيق الجدول الخاص بالدوبامين - معدل ليكون من اليسار لليمين */
+        /* تنسيق الجدول الخاص بالدوبامين */
         .dopamine-table {
             width: 100%;
             margin-top: 10px;
             border-collapse: collapse;
             font-size: 0.9rem;
-            direction: ltr; /* اتجاه الجدول من اليسار لليمين */
-            text-align: left; /* محاذاة النص لليسار */
+            direction: ltr; 
+            text-align: left; 
         }
         
         .dopamine-table th, .dopamine-table td {
@@ -312,8 +312,9 @@
                     if (id === 9) {
                         const doses = [2, 5, 7, 10];
                         let tableRows = doses.map(ds => {
-                            let ml24 = ds * patientInfo.weight * 1.44;
-                            return `<tr><td>${ds} mcg/kg/min</td><td>${smartFormat(ml24)} ml / 24h</td></tr>`;
+                            let ml24Raw = ds * patientInfo.weight * 1.44;
+                            let ml24Rounded = Math.round(ml24Raw); // تقريب بدون فوارز
+                            return `<tr><td>${ds} mcg/kg/min</td><td>${ml24Rounded} ml / 24h</td></tr>`;
                         }).join('');
                         calculatedResults.push({ name: "Dopamine", dose: "Table Generated", unit: "" });
                         return `
