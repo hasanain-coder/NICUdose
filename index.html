@@ -6,178 +6,165 @@
     <title>NICU Dose Calculator | حاسبة الجرعات</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        * { font-family: system-ui, -apple-system, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; }
-        .screen-hidden { display: none !important; }
-        .screen-visible { display: block !important; }
+        * {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .screen-hidden {
+            display: none !important;
+        }
+
+        .screen-visible {
+            display: block !important;
+        }
+
         input {
             border: 2px solid #93c5fd !important;
             padding: 0.75rem 1rem !important;
             border-radius: 0.5rem !important;
             background-color: white !important;
             text-align: center;
+            width: 100%;
         }
-        input:focus {
-            outline: none;
-            border-color: #0ea5e9 !important;
-            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1) !important;
-        }
-        .drug-btn {
-            transition: all 0.3s;
-            position: relative;
-        }
-        .drug-btn:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 20px -3px rgba(0, 0, 0, 0.1);
-        }
+
         .action-btn {
-            min-height: 56px;
+            min-height: 44px;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
             transition: all 0.2s;
+            border-radius: 12px !important;
+            width: 100%;
+            font-weight: bold;
         }
+
         .action-btn:active {
             transform: scale(0.98);
+        }
+
+        /* تنسيق مخصص لمربع طريقة التحضير */
+        .prep-box {
+            background-color: #fff7ed;
+            border-right: 4px solid #f97316;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: #7c2d12;
+            font-weight: 600;
+        }
+
+        .dopamine-table {
+            width: 100%;
+            margin-top: 10px;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            direction: ltr; 
+            text-align: left; 
+        }
+        
+        .dopamine-table th, .dopamine-table td {
+            border: 1px solid #e2e8f0;
+            padding: 10px;
+        }
+        
+        .dopamine-table th {
+            background-color: #f1f5f9;
+            color: #1e293b;
+            font-weight: bold;
         }
     </style>
 </head>
 <body class="bg-gradient-to-br from-sky-50 via-cyan-50 to-teal-50 min-h-screen flex flex-col">
+
     <header class="bg-gradient-to-l from-sky-500 to-teal-500 text-white shadow-lg">
-        <div class="container mx-auto px-4 py-6">
+        <div class="container mx-auto px-4 py-6 text-center">
             <div class="flex items-center justify-between">
-                <div class="flex-1">
-                    <button id="backBtn" onclick="goBack()" class="text-white hover:bg-white/20 p-2 rounded-lg hidden">← رجوع</button>
-                </div>
-                <div class="text-center flex-[2]">
-                    <h1 class="text-2xl md:text-4xl font-bold">حاسبة الجرعات</h1>
-                    <p class="text-sky-100 text-sm md:text-base">خاص بوحدة العناية المركزة لحديثي الولادة (الخدج) لمستشفى بغداد التعليمي</p>
-                </div>
-                <div class="flex-1 flex justify-end">
-                    <div id="headerPatientInfo" class="bg-white/20 rounded-lg px-3 py-2 flex items-center gap-2 hidden">
-                        <span class="text-sm"><span id="headerPatientName" class="font-semibold"></span> | <span id="headerPatientWeight" class="text-sky-100"></span></span>
-                    </div>
+                <button id="backBtn" class="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg hidden">
+                    ← رجوع
+                </button>
+                <div class="flex-1 text-center">
+                    <h1 class="text-2xl md:text-3xl font-bold">حاسبة الجرعات</h1>
+                    <p class="text-sky-100 text-sm">مستشفى بغداد التعليمي - NICU</p>
                 </div>
             </div>
         </div>
     </header>
 
-    <main class="flex-1 px-4 py-8 relative">
+    <main class="flex-1 px-4 py-8">
         <div id="greetingScreen" class="screen-visible">
-            <div class="flex items-center justify-center h-full">
-                <div class="w-full max-w-md">
-                    <div class="shadow-2xl border-2 border-sky-200 rounded-xl bg-white">
-                        <div class="bg-gradient-to-l from-sky-50 to-teal-50 border-b-2 border-sky-200 p-6 rounded-t-xl">
-                            <h2 class="text-2xl text-sky-800 text-center font-bold">معلومات المريض</h2>
-                            <p class="text-center text-sky-700">أدخل بيانات الطفل للبدء</p>
-                        </div>
-                        <div class="p-6 space-y-6">
-                            <div class="space-y-2">
-                                <label for="babyName" class="text-sky-800 text-base font-semibold block">اسم الطفل</label>
-                                <input id="babyName" type="text" placeholder="أدخل اسم الطفل" class="w-full text-lg border-sky-300 rounded-lg px-4 py-3">
-                            </div>
-                            <div class="space-y-2">
-                                <label for="babyWeight" class="text-sky-800 text-base font-semibold block">وزن الطفل (كجم)</label>
-                                <input id="babyWeight" type="text" inputmode="decimal" placeholder="مثال: 1.25" class="w-full text-lg border-sky-300 rounded-lg px-4 py-3">
-                                <p class="text-xs text-sky-600 mt-2">يقبل الأرقام العربية (٠-٩) والإنجليزية</p>
-                            </div>
-                            <div id="errorMessage" class="bg-red-50 border-2 border-red-300 text-red-700 px-4 py-3 rounded-lg text-center hidden"></div>
-                            <button onclick="selectTreatment()" class="w-full bg-gradient-to-l from-sky-500 to-teal-500 hover:from-sky-600 hover:to-teal-600 text-white text-lg font-bold py-4 shadow-lg rounded-lg transition-all">اختيار العلاج</button>
-                        </div>
+            <div class="max-w-md mx-auto bg-white rounded-2xl shadow-xl border-2 border-sky-100 p-6 space-y-6">
+                <h2 class="text-xl font-bold text-sky-800 text-center">معلومات المريض</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sky-700 font-semibold mb-1">اسم الطفل</label>
+                        <input id="babyName" type="text" placeholder="أدخل اسم الطفل">
                     </div>
+                    <div>
+                        <label class="block text-sky-700 font-semibold mb-1">الوزن (كجم)</label>
+                        <input id="babyWeight" type="text" placeholder="مثال: 2.5">
+                    </div>
+                    <div id="errorMessage" class="text-red-600 text-sm font-bold text-center hidden"></div>
+                    <button id="selectTreatmentBtn" class="w-full bg-sky-600 text-white py-4 rounded-xl font-bold shadow-lg">
+                        اختيار العلاج
+                    </button>
                 </div>
             </div>
         </div>
 
         <div id="drugSelectionScreen" class="screen-hidden">
-            <div class="container mx-auto max-w-4xl">
-                <div class="mb-6 bg-gradient-to-l from-sky-100 to-teal-100 border-2 border-sky-300 rounded-xl p-6">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-4">
-                            <div class="bg-gradient-to-l from-sky-500 to-teal-500 rounded-full p-3 text-white text-2xl">👶</div>
-                            <div>
-                                <h2 id="selectionPatientName" class="text-xl font-bold text-sky-800">مجهول</h2>
-                                <p class="text-sky-700">الوزن: <span id="selectionPatientWeight" class="font-bold">0</span> كجم</p>
-                            </div>
-                        </div>
-                        <div class="bg-white/50 rounded-full px-3 py-2">
-                            <span id="selectedDrugsCount" class="text-sm text-sky-700 font-bold">0 دواء محدد</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="mb-6">
-                    <h2 class="text-2xl font-bold text-sky-800 mb-2">اختيار الأدوية</h2>
-                    <p class="text-sky-700">حدد الأدوية المطلوبة لحساب جرعاتها</p>
-                </div>
-                <div id="drugGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-24"></div>
+            <div class="max-w-4xl mx-auto">
+                <div id="drugGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-32"></div>
             </div>
         </div>
 
         <div id="resultsScreen" class="screen-hidden">
-            <div class="container mx-auto max-w-5xl pb-40">
-                <div class="mb-6 bg-gradient-to-l from-emerald-500 to-teal-600 border-2 border-emerald-600 rounded-xl p-6 text-white shadow-lg">
-                    <div class="flex items-center gap-4">
-                        <div class="bg-white/20 rounded-full p-3 text-white text-2xl">📋</div>
-                        <div>
-                            <h2 class="text-2xl font-bold mb-1">نتائج الحساب</h2>
-                            <p><span id="resultsPatientName"></span> | <span id="resultsPatientWeight"></span> كجم</p>
-                        </div>
-                    </div>
-                </div>
-                <div id="resultsGrid" class="grid grid-cols-1 lg:grid-cols-2 gap-6"></div>
-                
-                <div class="mt-8 bg-amber-50 border-2 border-amber-300 rounded-xl p-6 shadow-sm">
-                    <div class="flex items-start gap-3">
-                        <span class="text-amber-600 text-2xl">⚠️</span>
-                        <div>
-                            <p class="text-amber-900 font-bold text-lg mb-1">تنبيه هام</p>
-                            <p class="text-amber-700 text-sm">يرجى مراجعة الحسابات والتأكد من صحة البيانات والوزن قبل إعطاء أي دواء للطفل.</p>
-                        </div>
-                    </div>
-                </div>
+            <div class="max-w-4xl mx-auto pb-48">
+                <div id="resultsGrid" class="grid grid-cols-1 gap-6"></div>
             </div>
         </div>
     </main>
 
-    <div id="calculateBtnContainer" class="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-sky-200 p-4 shadow-lg hidden">
-        <div class="container mx-auto max-w-4xl">
-            <button id="calculateBtn" onclick="calculateDoses()" class="w-full py-4 text-lg font-bold bg-gradient-to-l from-sky-500 to-teal-500 text-white rounded-xl shadow-md disabled:opacity-50">حساب الجرعات</button>
-        </div>
+    <div id="calculateBtnContainer" class="fixed bottom-0 left-0 right-0 bg-white border-t p-4 hidden">
+        <button id="calculateBtn" class="w-full max-w-4xl mx-auto block bg-gradient-to-l from-sky-500 to-teal-500 text-white py-4 rounded-xl font-bold shadow-lg disabled:opacity-50">
+            حساب الجرعات وإبلاغ البوت
+        </button>
     </div>
 
-    <div id="resultsFooter" class="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-emerald-100 p-6 shadow-[0_-10px_20px_rgba(0,0,0,0.05)] hidden">
-        <div class="container mx-auto max-w-4xl">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <button onclick="startOver()" class="action-btn w-full bg-emerald-50 border-2 border-emerald-500 text-emerald-700 font-bold rounded-xl hover:bg-emerald-100">
-                    <span>🔄</span> بدء جديد
-                </button>
-                <a href="https://t.me/NICU_BTHbot" target="_blank" class="action-btn w-full bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 shadow-md">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
-                    </svg>
-                    <span>التواصل مع فريق الصيادلة</span>
-                </a>
-            </div>
+    <div id="resultsFooter" class="fixed bottom-0 left-0 right-0 bg-white border-t p-3 hidden shadow-[0_-5px_20px_rgba(0,0,0,0.1)]">
+        <div class="max-w-md mx-auto flex flex-col gap-2">
+            <button id="startOverBtn" class="action-btn bg-white border-2 border-emerald-500 text-emerald-700">
+                🔄 بدء جديد
+            </button>
         </div>
     </div>
 
     <script>
+        // طرق التحضير
+        const PREPS = {
+            1: 'تحل الفيالة بـ 10 سيسي نورمال سلاين',
+            2: 'لم يتم تحديد طريقة تحضير لهذا العلاج بعد',
+            9: '1 مل (40 ملغم) دوبامين + 39 مل جلوكوز ووتر (المجموع 40 مل)'
+        };
+
         const DRUGS = [
-            { id: 1, name: 'Amoxicillin', nameAr: 'أموكسيسيلين', dosePerKg: 50, unit: 'mg', factor: 1, methodIndex: 1, timeMultiplier: 1 },
-            { id: 2, name: 'Gentamicin', nameAr: 'جنتاميسين', dosePerKg: 5, unit: 'mg', factor: 12.5, methodIndex: 2, timeMultiplier: 1 },
-            { id: 3, name: 'Caffeine Loading', nameAr: 'كافيين تحميلي', dosePerKg: 20, unit: 'mg', factor: 2, methodIndex: 3, timeMultiplier: 1 },
-            { id: 4, name: 'Caffeine Maintenance', nameAr: 'كافيين صيانة', dosePerKg: 10, unit: 'mg', factor: 50, methodIndex: 4, timeMultiplier: 1 },
-            { id: 5, name: 'Colistin Loading', nameAr: 'كوليستين تحميلي', dosePerKg: 150000, unit: 'IU', factor: 30, methodIndex: 5, timeMultiplier: 1 },
-            { id: 6, name: 'Colistin Maintenance', nameAr: 'كوليستين صيانة', dosePerKg: 37500, unit: 'IU', factor: 7.5, methodIndex: 6, timeMultiplier: 1 },
-            { id: 7, name: 'Tigecycline', nameAr: 'تيجيسايكلين', dosePerKg: 2, unit: 'mg', factor: 2, methodIndex: 7, timeMultiplier: 1 },
-            { id: 8, name: 'Meropenem', nameAr: 'ميروبينيم', dosePerKg: 40, unit: 'mg', factor: 1.6, methodIndex: 8, timeMultiplier: 1 },
-            { id: 9, name: 'Dopamine', nameAr: 'دوبامين', dosePerKg: 5, unit: 'mcg', factor: 36, methodIndex: 9, timeMultiplier: 1440 },
-            { id: 10, name: 'Dexmedetomidine', nameAr: 'ديكسميدتوميدين', dosePerKg: 0.3, unit: 'mcg', factor: 14.4, methodIndex: 10, timeMultiplier: 24 },
-            { id: 11, name: 'Dexmedetomidine Loading', nameAr: 'ديكسميدتوميدين تحميلي', dosePerKg: 0.1, unit: 'mcg', factor: 5, methodIndex: 11, timeMultiplier: 1 },
-            { id: 12, name: 'Midazolam Loading', nameAr: 'ميدازولام تحميلي', dosePerKg: 0.1, unit: 'mg', factor: 10, methodIndex: 12, timeMultiplier: 1 },
-            { id: 13, name: 'Midazolam Maintenance', nameAr: 'ميدازولام صيانة', dosePerKg: 0.03, unit: 'mg', factor: 14.4, methodIndex: 13, timeMultiplier: 24 },
-            { id: 14, name: 'Phenobarbital Loading', nameAr: 'فينوباربيتال تحميلي', dosePerKg: 20, unit: 'mg', factor: 4, methodIndex: 14, timeMultiplier: 1 },
-            { id: 15, name: 'Phenobarbital Maintenance', nameAr: 'فينوباربيتال صيانة', dosePerKg: 2.5, unit: 'mg', factor: 0.5, methodIndex: 15, timeMultiplier: 1, hasConditionalFactor: true }
+            { id: 1, name: 'Amoxicillin', dosePerKg: 50, unit: 'mg', factor: 1, methodIndex: 1, prepIndex: 1, timeMultiplier: 1 },
+            { id: 2, name: 'Gentamicin', dosePerKg: 5, unit: 'mg', factor: 12.5, methodIndex: 2, prepIndex: 2, timeMultiplier: 1 },
+            { id: 3, name: 'Caffeine Loading', dosePerKg: 20, unit: 'mg', factor: 2, methodIndex: 3, prepIndex: 2, timeMultiplier: 1 },
+            { id: 4, name: 'Caffeine Maintenance', dosePerKg: 10, unit: 'mg', factor: 50, methodIndex: 4, prepIndex: 2, timeMultiplier: 1 },
+            { id: 5, name: 'Colistin Loading', dosePerKg: 150000, unit: 'IU', factor: 30, methodIndex: 5, prepIndex: 2, timeMultiplier: 1 },
+            { id: 6, name: 'Colistin Maintenance', dosePerKg: 37500, unit: 'IU', factor: 7.5, methodIndex: 6, prepIndex: 2, timeMultiplier: 1 },
+            { id: 7, name: 'Tigecycline', dosePerKg: 2, unit: 'mg', factor: 2, methodIndex: 7, prepIndex: 2, timeMultiplier: 1 },
+            { id: 8, name: 'Meropenem', dosePerKg: 40, unit: 'mg', factor: 1.6, methodIndex: 8, prepIndex: 2, timeMultiplier: 1 },
+            { id: 9, name: 'Dopamine', dosePerKg: 5, unit: 'mcg', factor: 36, methodIndex: 9, prepIndex: 9, timeMultiplier: 1440 },
+            { id: 10, name: 'Dexmedetomidine', dosePerKg: 0.3, unit: 'mcg', factor: 14.4, methodIndex: 10, prepIndex: 2, timeMultiplier: 24 },
+            { id: 11, name: 'Dexmedetomidine Loading', dosePerKg: 0.1, unit: 'mcg', factor: 5, methodIndex: 11, prepIndex: 2, timeMultiplier: 1 },
+            { id: 12, name: 'Midazolam Loading', dosePerKg: 0.1, unit: 'mg', factor: 10, methodIndex: 12, prepIndex: 2, timeMultiplier: 1 },
+            { id: 13, name: 'Midazolam Maintenance', dosePerKg: 0.03, unit: 'mg', factor: 14.4, methodIndex: 13, prepIndex: 2, timeMultiplier: 24 },
+            { id: 14, name: 'Phenobarbital Loading', dosePerKg: 20, unit: 'mg', factor: 4, methodIndex: 14, prepIndex: 2, timeMultiplier: 1 },
+            { id: 15, name: 'Phenobarbital Maintenance', dosePerKg: 2.5, unit: 'mg', factor: 0.5, methodIndex: 15, prepIndex: 2, timeMultiplier: 1 },
+            { id: 16, name: 'Hydrocortisone', dosePerKg: 2, unit: 'mg', factor: 10, methodIndex: 16, prepIndex: 2, timeMultiplier: 1 }
         ];
 
         const METHODS = {
@@ -189,246 +176,156 @@
             6: 'تسحب ** وحدة انسولين وتخفف بـ 5 سيسي كلوكوز وتر ويعطى خلال 5 دقائق',
             7: 'تسحب ** مل وتضاف إلى ## سيسي كلوكوز وتر، تفرغ 10 سيسي ويعطى 10 سيسي خلال 30 دقيقة',
             8: 'تسحب ** مل وتضاف إلى ## سيسي كلوكوز وتر، تفرغ 10 سيسي ويعطى 10 سيسي خلال 30 دقيقة',
-            9: 'تسحب ** وحدة انسولين وتضاف إلى 20 سيسي كلوكوز وتر، تفرغ 10 سيسي ويعطى 10 سيسي خلال 24 ساعة *انتباه خلال 24 ساعة*',
-            10: 'تسحب ** وحدة انسولين وتضاف إلى 20 سيسي كلوكوز وتر، تفرغ 10 سيسي ويعطى 10 سيسي خلال 24 ساعة *انتباه خلال 24 ساعة*',
-            11: 'تسحب 10 يونت دكس من الامبولة وتخفف الى 5 مل، تسحب ** وحدة انسولين من المخفف وتضاف الى 3 مل نورمال سلاين وتعطى وريدي مباشر خلال 15 دقيقة',
-            12: 'تسحب 1 مل ميدازولام من الامبولة وتخفف الى 5 مل، تسحب ** وحدة انسولين من المخفف وتضاف الى 3 مل نورمال سلاين وتعطى وريدي مباشر خلال 5 دقائق',
-            13: 'تسحب ** وحدة انسولين وتضاف إلى 20 سيسي كلوكوز وتر، تفرغ 10 سيسي ويعطى 10 سيسي خلال 24 ساعة *انتباه خلال 24 ساعة*',
-            14: 'تخفف الامبولة الى 20 سيسي مع NS ويسحب ** مل من المخفف وتضاف إلى ## سيسي كلوكوز وتر، تفرغ 10 سيسي وتعطى 10 سيسي خلال 30 دقيقة',
-            15: 'تخفف الامبولة الى 20 سيسي NS ويسحب ** وحدة انسولين من المخفف وتضاف إلى 20 سيسي كلوكوز وتر، تفرغ 10 سيسي وتعطى 10 سيسي خلال 30 دقيقة'
+            9: 'عن طريق جهاز الإعطاء المستمر بالسرعات الموضحة في الجدول أدناه.',
+            10: 'تسحب ** وحدة انسولين وتضاف إلى 20 سيسي كلوكوز وتر، تفرغ 10 سيسي ويعطى 10 سيسي خلال 24 ساعة',
+            11: 'تخفف الامبولة الى 5 مل، تسحب ** وحدة انسولين وتضاف الى 3 مل NS وتعطى خلال 15 دقيقة',
+            12: 'تخفف الامبولة الى 5 مل، تسحب ** وحدة انسولين وتضاف الى 3 مل NS وتعطى خلال 5 دقائق',
+            13: 'تسحب ** وحدة انسولين وتضاف إلى 20 سيسي كلوكوز وتر، تفرغ 10 سيسي ويعطى 10 سيسي خلال 24 ساعة',
+            14: 'تخفف الامبولة الى 20 سيسي، يسحب ** مل وتضاف إلى ## سيسي كلوكوز وتر، تفرغ 10 سيسي وتعطى 10 سيسي خلال 30 دقيقة',
+            15: 'تخفف الامبولة الى 20 سيسي، يسحب ** وحدة انسولين وتضاف إلى ## سيسي كلوكوز وتر، تفرغ 10 سيسي وتعطى 10 سيسي خلال 30 دقيقة',
+            16: 'تسحب ** وحدة انسولين وتخفف الى 3 سيسي مع نورمال سلاين وتعطى خلال 5 دقائق'
         };
 
-        let currentScreen = 'greeting';
         let selectedDrugs = [];
         let patientInfo = null;
 
-        function normalizeNumerals(str) {
-            const arabicNumerals = '٠١٢٣٤٥٦٧٨٩';
-            const englishNumerals = '0123456789';
-            return str.replace(/[٠-٩]/g, (d) => englishNumerals[arabicNumerals.indexOf(d)]);
+        function normalizeNum(s) {
+            if(!s) return "";
+            let res = s.replace(/[٠-٩]/g, d => '0123456789'['٠١٢٣٤٥٦٧٨٩'.indexOf(d)]); 
+            res = res.replace(/،/g, '.'); 
+            return res;
         }
 
-        function formatNumber(num) {
-            const rounded = Math.round(num * 10) / 10;
-            if (Number.isInteger(rounded)) {
-                return rounded.toString();
-            }
-            return rounded.toFixed(1);
+        function smartFormat(num) {
+            let val = Math.round(num * 10) / 10;
+            return Number.isInteger(val) ? val.toString() : val.toFixed(1);
         }
-
-        function formatDose(dose, unit) {
-            if (unit === 'IU') {
-                return Math.round(dose).toLocaleString();
-            }
-            return formatNumber(dose);
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const weightInput = document.getElementById('babyWeight');
-            weightInput.addEventListener('input', function(e) {
-                let val = e.target.value;
-                e.target.value = val.replace(/[^\d.٠-٩]/g, '');
-            });
-        });
 
         function showScreen(screen) {
-            currentScreen = screen;
             document.getElementById('greetingScreen').className = screen === 'greeting' ? 'screen-visible' : 'screen-hidden';
             document.getElementById('drugSelectionScreen').className = screen === 'drugSelection' ? 'screen-visible' : 'screen-hidden';
             document.getElementById('resultsScreen').className = screen === 'results' ? 'screen-visible' : 'screen-hidden';
-            
-            document.getElementById('backBtn').classList.toggle('hidden', screen === 'greeting');
-            document.getElementById('headerPatientInfo').classList.toggle('hidden', screen === 'greeting' || !patientInfo);
             document.getElementById('calculateBtnContainer').classList.toggle('hidden', screen !== 'drugSelection');
             document.getElementById('resultsFooter').classList.toggle('hidden', screen !== 'results');
-            window.scrollTo(0, 0);
+            document.getElementById('backBtn').classList.toggle('hidden', screen === 'greeting');
+            window.scrollTo(0,0);
         }
 
-        function selectTreatment() {
-            const name = document.getElementById('babyName').value.trim() || 'مجهول';
-            let weightRaw = document.getElementById('babyWeight').value;
-            let weight = parseFloat(normalizeNumerals(weightRaw));
-            const errorEl = document.getElementById('errorMessage');
-
-            if (isNaN(weight) || weight <= 0) {
-                errorEl.textContent = 'الرجاء إدخال وزن صحيح';
-                errorEl.classList.remove('hidden');
-                return;
+        window.toggleDrug = function(id) {
+            if (selectedDrugs.includes(id)) {
+                selectedDrugs = selectedDrugs.filter(x => x !== id);
+            } else {
+                selectedDrugs = [...selectedDrugs, id];
             }
-
-            errorEl.classList.add('hidden');
-            patientInfo = { name, weight };
-            updateDrugSelectionUI();
-            showScreen('drugSelection');
-        }
-
-        function updateDrugSelectionUI() {
-            document.getElementById('selectionPatientName').textContent = patientInfo.name;
-            document.getElementById('selectionPatientWeight').textContent = patientInfo.weight;
-            document.getElementById('headerPatientName').textContent = patientInfo.name;
-            document.getElementById('headerPatientWeight').textContent = patientInfo.weight + ' كجم';
-            document.getElementById('selectedDrugsCount').textContent = selectedDrugs.length + ' دواء محدد';
-            document.getElementById('calculateBtn').disabled = selectedDrugs.length === 0;
             renderDrugGrid();
-        }
+        };
 
         function renderDrugGrid() {
             const grid = document.getElementById('drugGrid');
-            grid.innerHTML = DRUGS.map(drug => {
-                const selected = selectedDrugs.includes(drug.id);
+            grid.innerHTML = DRUGS.map(d => {
+                const isSel = selectedDrugs.includes(d.id);
                 return `
-                    <div onclick="toggleDrug(${drug.id})" class="drug-btn p-6 rounded-xl border-2 cursor-pointer ${selected ? 'bg-gradient-to-l from-sky-500 to-blue-600 border-blue-600 text-white shadow-lg' : 'bg-white border-sky-200 text-sky-800'}">
-                        ${selected ? '<div class="absolute top-2 left-2 bg-white/20 rounded-full w-6 h-6 flex items-center justify-center">✓</div>' : ''}
-                        <div class="text-left" dir="ltr">
-                            <h3 class="text-xl font-bold mb-1">${drug.name}</h3>
-                            <p class="text-sm ${selected ? 'text-white/80' : 'text-sky-500'}">${drug.dosePerKg} ${drug.unit}/kg</p>
-                        </div>
-                    </div>`;
+                    <div onclick="toggleDrug(${d.id})" class="p-5 rounded-xl border-2 cursor-pointer transition-all ${isSel ? 'bg-sky-600 border-sky-700 text-white' : 'bg-white border-sky-100 text-sky-800'}">
+                        <div class="font-bold text-lg text-left" dir="ltr">${d.name}</div>
+                        <div class="text-xs opacity-70 text-left" dir="ltr">${d.dosePerKg} ${d.unit}/kg</div>
+                    </div>
+                `;
             }).join('');
+            document.getElementById('calculateBtn').disabled = selectedDrugs.length === 0;
         }
 
-        function toggleDrug(id) {
-            if (selectedDrugs.includes(id)) {
-                selectedDrugs = selectedDrugs.filter(d => d !== id);
-            } else {
-                selectedDrugs.push(id);
-            }
-            updateDrugSelectionUI();
-        }
-
-        function calculateDoses() {
-            const grid = document.getElementById('resultsGrid');
-            document.getElementById('resultsPatientName').textContent = patientInfo.name;
-            document.getElementById('resultsPatientWeight').textContent = patientInfo.weight;
-            
-            // Weight condition for tiny weight babies
-            const isTinyWeight = patientInfo.weight < 1;
-
-            grid.innerHTML = selectedDrugs.map((id, index) => {
-                const drug = DRUGS.find(d => d.id === id);
-                let totalDose = patientInfo.weight * drug.dosePerKg * drug.timeMultiplier;
-
-                const isDopamine = drug.id === 9;
-                if (isDopamine) {
-                    totalDose = totalDose / 1000;
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('selectTreatmentBtn').onclick = () => {
+                const weightStr = normalizeNum(document.getElementById('babyWeight').value);
+                const weight = parseFloat(weightStr);
+                const err = document.getElementById('errorMessage');
+                if (isNaN(weight) || weight <= 0 || weight < 0.5 || weight > 5) {
+                    err.innerText = "الرجاء إدخال وزن صحيح (0.5 - 5 كجم)";
+                    err.classList.remove('hidden');
+                    return;
                 }
-
-                const displayUnit = isDopamine ? 'mg' : drug.unit;
-                let displayDose = formatDose(totalDose, displayUnit);
-
-                let factor = drug.factor;
-                let method = METHODS[drug.methodIndex];
-
-                // Drug 3: Caffeine Loading
-                if (drug.id === 3 && isTinyWeight) {
-                    factor = 3;
-                    method = 'تسحب ** مل وتضاف إلى ^^ سيسي كلوكوز وتر، تفرغ 10 سيسي ويعطى 5 سيسي خلال 30 دقيقة';
-                }
-
-                // Drug 7: Tigecycline
-                if (drug.id === 7 && isTinyWeight) {
-                    factor = 3;
-                    method = 'تسحب ** مل وتضاف إلى ^^ سيسي كلوكوز وتر، تفرغ 10 سيسي ويعطى 5 سيسي خلال 30 دقيقة';
-                }
-
-                // Drug 1: Amoxcicillin
-                if (drug.id === 1 && isTinyWeight) {
-                    factor = 100;
-                    method = 'تسحب ** وحدة انسولين وتخفف مع 3 سيسي كلوكوز وتر وتعطى خلال 5 دقائق';
-                }
-
-                // Drug 8: Meropenem
-                if (drug.id === 8 && isTinyWeight) {
-                    factor = 2.4;
-                    method = 'تسحب ** مل وتضاف إلى ^^ سيسي كلوكوز وتر، تفرغ 10 سيسي ويعطى 5 سيسي خلال 30 دقيقة';
-                }
-
-                // Drug 14: Phenobarbital Loading
-                if (drug.id === 14 && isTinyWeight) {
-                    factor = 6;
-                    method = 'تخفف الامبولة الى 20 سيسي NS ويسحب ** مل وتضاف إلى ^^ سيسي كلوكوز وتر، تفرغ 10 سيسي ويعطى 5 سيسي خلال 30 دقيقة';
-                }
-
-                // Handle conditional factor for Phenobarbital Maintenance (ID 15)
-                if (drug.id === 15) {
-                    if (patientInfo.weight >= 2) {
-                        factor = 0.5;
-                        method = 'تخفف الامبولة الى 20 سيسي NS ويسحب ** مل وتضاف إلى ## سيسي كلوكوز وتر، تفرغ 10 سيسي وتعطى 10 سيسي خلال 30 دقيقة';
-                    } else if (patientInfo.weight >= 1 && patientInfo.weight < 2) {
-                        factor = 50;
-                        method = 'تخفف الامبولة الى 20 سيسي NS وتسحب ** وحدة انسولين وتضاف إلى 20 سيسي كلوكوز وتر، تفرغ 10 سيسي وتعطى 10 سيسي خلال 30 دقيقة';
-                    } else {
-                        factor = 75;
-                        method = 'تخفف الامبولة الى 20 سيسي NS وتسحب ** وحدة انسولين وتضاف إلى 15 سيسي كلوكوز وتر، تفرغ 10 سيسي وتعطى 5 سيسي خلال 30 دقيقة';
-                    }
-                }
-                
-                const volumeRoundToWhole = [2, 4, 5, 6, 9, 10, 11, 12, 13].includes(drug.id) || 
-                    (drug.id === 15 && (patientInfo.weight < 2));
-                let volume = volumeRoundToWhole 
-                    ? Math.round(patientInfo.weight * factor)
-                    : Math.round((patientInfo.weight * factor) * 10) / 10;
-                method = method.replace(/\*\*/g, volume);
-                
-                // Handle ^^ placeholder (15 - volume) for tiny weight drugs
-                if (method.includes('\^\^')) {
-                    const hatHatValue = 15 - volume;
-                    method = method.replace(/\^\^/g, hatHatValue);
-                }
-                
-                if (method.includes('##')) {
-                    let replacementValue;
-                    if (drug.id === 15) {
-                        if (patientInfo.weight >= 2) {
-                            replacementValue = volumeRoundToWhole ? (20 - volume) : (20 - volume).toFixed(1);
-                        } else if (patientInfo.weight >= 1 && patientInfo.weight < 2) {
-                            replacementValue = 20 - volume;
-                        } else {
-                            replacementValue = 15 - volume;
-                        }
-                    } else {
-                        replacementValue = volumeRoundToWhole ? (20 - volume) : (20 - volume).toFixed(1);
-                    }
-                    method = method.replace(/##/g, replacementValue);
-                }
-
-                return `
-                    <div class="shadow-md border-2 border-emerald-100 bg-white rounded-xl overflow-hidden">
-                        <div class="bg-emerald-50 p-4 border-b border-emerald-100 flex items-center gap-3">
-                            <span class="bg-emerald-500 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold">${index + 1}</span>
-                            <h3 class="text-xl font-bold text-emerald-900" dir="ltr">${drug.name}</h3>
-                        </div>
-                        <div class="p-5 space-y-4">
-                            <div class="bg-emerald-100/50 rounded-lg p-3">
-                                <p class="text-xs text-emerald-600 mb-1">الجرعة الكلية</p>
-                                <p class="text-2xl font-black text-emerald-800">${displayDose} ${displayUnit}</p>
-                            </div>
-                            <div>
-                                <p class="text-xs text-emerald-600 mb-2 font-bold">طريقة الإعطاء:</p>
-                                <p class="text-gray-800 leading-relaxed">${method}</p>
-                            </div>
-                        </div>
-                    </div>`;
-            }).join('');
-            
-            showScreen('results');
-        }
-
-        function goBack() {
-            if (currentScreen === 'results') {
+                err.classList.add('hidden');
+                patientInfo = { name: document.getElementById('babyName').value.trim() || 'مجهول', weight: weight };
+                renderDrugGrid();
                 showScreen('drugSelection');
-            } else if (currentScreen === 'drugSelection') {
-                showScreen('greeting');
-            }
-        }
+            };
 
-        function startOver() {
-            selectedDrugs = [];
-            patientInfo = null;
-            document.getElementById('babyName').value = '';
-            document.getElementById('babyWeight').value = '';
-            showScreen('greeting');
-        }
+            document.getElementById('calculateBtn').onclick = () => {
+                const grid = document.getElementById('resultsGrid');
+                const isTiny = patientInfo.weight < 1;
+
+                grid.innerHTML = selectedDrugs.map((id, idx) => {
+                    const drug = DRUGS.find(d => d.id === id);
+                    
+                    // حالة الدوبامين الخاصة
+                    if (id === 9) {
+                        const doses = [2, 5, 7, 10];
+                        let tableRows = doses.map(ds => {
+                            let ml24 = Math.round(ds * patientInfo.weight * 1.44);
+                            return `<tr><td>${ds} mcg/kg/min</td><td>${ml24} ml / 24h</td></tr>`;
+                        }).join('');
+                        return `
+                            <div class="bg-white p-5 rounded-2xl shadow-md border-r-8 border-sky-500">
+                                <h3 class="font-bold text-sky-900 text-left text-2xl mb-1" dir="ltr">${idx+1}. ${drug.name}</h3>
+                                <div class="prep-box text-right" dir="rtl">طريقة التحضير: ${PREPS[9]}</div>
+                                <p class="text-gray-700 leading-relaxed text-right mb-2" dir="rtl">طريقة الإعطاء: ${METHODS[9]}</p>
+                                <table class="dopamine-table" dir="ltr">
+                                    <thead><tr><th>Dose</th><th>Rate (ml / 24h)</th></tr></thead>
+                                    <tbody>${tableRows}</tbody>
+                                </table>
+                            </div>
+                        `;
+                    }
+
+                    // بقية الأدوية
+                    let dose = patientInfo.weight * drug.dosePerKg * drug.timeMultiplier;
+                    let factor = drug.factor;
+                    let meth = METHODS[drug.methodIndex];
+
+                    // التعديلات للأوزان الصغيرة
+                    if (isTiny) {
+                        if ([3, 7, 8].includes(id)) {
+                            factor = (id === 8) ? 2.4 : 3;
+                            meth = meth.replace('10 سيسي ويعطى 10', '10 سيسي ويعطى 5').replace('##', '^^');
+                        }
+                        if (id === 1) {
+                            factor = 100;
+                            meth = 'تسحب ** وحدة انسولين وتخفف مع 3 سيسي كلوكوز وتر وتعطى خلال 5 دقائق';
+                        }
+                    }
+
+                    let volVal = patientInfo.weight * factor;
+                    let volFinal = meth.includes('وحدة انسولين') ? Math.round(volVal) : smartFormat(volVal);
+
+                    let finalMeth = meth.replace('**', volFinal)
+                                        .replace('##', smartFormat(20 - parseFloat(volFinal)))
+                                        .replace('^^', smartFormat(15 - parseFloat(volFinal)));
+
+                    return `
+                        <div class="bg-white p-5 rounded-2xl shadow-md border-r-8 border-sky-500">
+                            <h3 class="font-bold text-sky-900 text-left text-2xl mb-1" dir="ltr">${idx+1}. ${drug.name}</h3>
+                            <div class="text-2xl font-black text-sky-600 mb-3 text-left" dir="ltr">
+                                ${smartFormat(dose)} <span class="text-sm font-normal text-gray-500">${drug.unit}</span>
+                            </div>
+                            <div class="prep-box text-right" dir="rtl">
+                                طريقة التحضير: ${PREPS[drug.prepIndex]}
+                            </div>
+                            <p class="text-gray-700 leading-relaxed text-right font-bold" dir="rtl">
+                                طريقة الإعطاء: <span class="text-sky-700">${finalMeth}</span>
+                            </p>
+                        </div>
+                    `;
+                }).join('');
+                showScreen('results');
+            };
+
+            document.getElementById('backBtn').onclick = () => {
+                const resultsVisible = !document.getElementById('resultsScreen').className.includes('screen-hidden');
+                if (resultsVisible) showScreen('drugSelection');
+                else showScreen('greeting');
+            };
+            document.getElementById('startOverBtn').onclick = () => { location.reload(); };
+        });
     </script>
 </body>
 </html>
