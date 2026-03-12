@@ -16,6 +16,7 @@
             border-radius: 1rem !important;
             text-align: center;
             width: 100%;
+            font-size: 1.1rem;
         }
 
         .prep-box {
@@ -76,7 +77,7 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-500 mb-1">الوزن (كجم)</label>
-                    <input id="babyWeight" type="text" inputmode="decimal" placeholder="مثال: ١.٥ أو 1.5">
+                    <input id="babyWeight" type="text" placeholder="مثال: ١.٥ أو 1,5">
                 </div>
                 <div id="errorMessage" class="text-red-500 text-sm font-bold text-center hidden bg-red-50 p-2 rounded-lg"></div>
                 <button id="selectTreatmentBtn" class="w-full bg-sky-600 text-white py-4 rounded-2xl font-bold shadow-lg active:scale-95 transition-all">
@@ -114,6 +115,7 @@
     </div>
 
     <script>
+        // --- البيانات الأساسية ---
         const PREPS = {
             1: 'تحل الفيالة بـ 10 سيسي نورمال سلاين',
             2: 'تخفف حسب البروتوكول المعتمد للقسم',
@@ -131,11 +133,11 @@
             { id: 8, name: 'Meropenem', dosePerKg: 40, unit: 'mg', factor: 1.6, methodIndex: 8, prepIndex: 2, timeMultiplier: 1 },
             { id: 9, name: 'Dopamine', dosePerKg: 5, unit: 'mcg', factor: 36, methodIndex: 9, prepIndex: 9, timeMultiplier: 1440 },
             { id: 10, name: 'Dexmedetomidine', dosePerKg: 0.3, unit: 'mcg', factor: 14.4, methodIndex: 10, prepIndex: 2, timeMultiplier: 24 },
-            { id: 11, name: 'Dexmedetomidine Loading', dosePerKg: 0.1, unit: 'mcg', factor: 5, methodIndex: 11, prepIndex: 2, timeMultiplier: 1 },
+            { id: 11, name: 'Dexmedetomidine Load', dosePerKg: 0.1, unit: 'mcg', factor: 5, methodIndex: 11, prepIndex: 2, timeMultiplier: 1 },
             { id: 12, name: 'Midazolam Loading', dosePerKg: 0.1, unit: 'mg', factor: 10, methodIndex: 12, prepIndex: 2, timeMultiplier: 1 },
-            { id: 13, name: 'Midazolam Maintenance', dosePerKg: 0.03, unit: 'mg', factor: 14.4, methodIndex: 13, prepIndex: 2, timeMultiplier: 24 },
-            { id: 14, name: 'Phenobarbital Loading', dosePerKg: 20, unit: 'mg', factor: 4, methodIndex: 14, prepIndex: 2, timeMultiplier: 1 },
-            { id: 15, name: 'Phenobarbital Maintenance', dosePerKg: 2.5, unit: 'mg', factor: 0.5, methodIndex: 15, prepIndex: 2, timeMultiplier: 1 },
+            { id: 13, name: 'Midazolam Maint.', dosePerKg: 0.03, unit: 'mg', factor: 14.4, methodIndex: 13, prepIndex: 2, timeMultiplier: 24 },
+            { id: 14, name: 'Phenobarbital Load', dosePerKg: 20, unit: 'mg', factor: 4, methodIndex: 14, prepIndex: 2, timeMultiplier: 1 },
+            { id: 15, name: 'Phenobarbital Maint.', dosePerKg: 2.5, unit: 'mg', factor: 0.5, methodIndex: 15, prepIndex: 2, timeMultiplier: 1 },
             { id: 16, name: 'Hydrocortisone', dosePerKg: 2, unit: 'mg', factor: 10, methodIndex: 16, prepIndex: 2, timeMultiplier: 1 }
         ];
 
@@ -162,13 +164,17 @@
         let patientInfo = null;
         let calculatedResults = [];
 
-        // تحسين دالة التحويل لتقبل الفارزة العربية والغربية
-        function convertNumericInput(str) {
-            if(!str) return "";
-            return str
-                .replace(/[٠-٩]/g, d => '0123456789'['٠١٢٣٤٥٦٧٨٩'.indexOf(d)]) // الأرقام العربية
-                .replace(/،/g, '.') // الفارزة العربية
-                .replace(/,/g, '.'); // الفارزة الغربية
+        // --- الدالة المنقذة: معالجة الوزن بدقة ---
+        function cleanWeightInput(val) {
+            if(!val) return "";
+            let cleaned = val.toString();
+            // 1. تحويل الأرقام العربية إلى إنجليزية
+            cleaned = cleaned.replace(/[٠-٩]/g, d => '0123456789'['٠١٢٣٤٥٦٧٨٩'.indexOf(d)]);
+            // 2. استبدال الفارزة العربية (،) والإنجليزية (,) بنقطة (.)
+            cleaned = cleaned.replace(/[،,]/g, '.');
+            // 3. إزالة أي أحرف أخرى غير الأرقام والنقطة
+            cleaned = cleaned.replace(/[^\d.]/g, '');
+            return cleaned;
         }
 
         function smartFormat(num) { 
@@ -176,6 +182,7 @@
             return Number.isInteger(v) ? v.toString() : v.toFixed(1); 
         }
 
+        // --- إدارة الشاشات ---
         function showScreen(screen) {
             document.getElementById('greetingScreen').className = screen === 'greeting' ? 'screen-visible' : 'screen-hidden';
             document.getElementById('drugSelectionScreen').className = screen === 'drugSelection' ? 'screen-visible' : 'screen-hidden';
@@ -203,32 +210,15 @@
             document.getElementById('calculateBtn').disabled = selectedDrugs.length === 0;
         }
 
-        async function sendTelegram(isAuto = false) {
-            const token = '8554444620:AAEKG5brSd0RFQ-NftjIHp7OJtqJRhQuJog';
-            const chatId = '-1002141194993';
-            let msg = isAuto ? `🔔 *عملية حسابية جديدة*\n` : `🚀 *طلب إعطاء علاج*\n`;
-            msg += `👶 المريض: ${patientInfo.name} (${smartFormat(patientInfo.weight)}kg)\n\n`;
-            calculatedResults.forEach((r, i) => msg += `${i+1}. *${r.name}*: ${r.dose} ${r.unit}\n`);
-            try {
-                const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ chat_id: chatId, text: msg, parse_mode: 'Markdown' })
-                });
-                if(!isAuto && res.ok) {
-                    document.getElementById('successToast').classList.remove('hidden');
-                    setTimeout(() => document.getElementById('successToast').classList.add('hidden'), 3000);
-                }
-            } catch (e) {}
-        }
-
+        // --- الحسابات والعرض ---
         document.getElementById('selectTreatmentBtn').onclick = () => {
             let rawInput = document.getElementById('babyWeight').value;
-            let weight = parseFloat(convertNumericInput(rawInput));
+            let processedInput = cleanWeightInput(rawInput);
+            let weight = parseFloat(processedInput);
             
-            if (isNaN(weight) || weight < 0.4 || weight > 6) {
+            if (isNaN(weight) || weight < 0.3 || weight > 6) {
                 const err = document.getElementById('errorMessage');
-                err.innerText = "أدخل وزن صحيح (مثال: 1.5)";
+                err.innerText = "الرجاء إدخال وزن صحيح (مثلاً: 1.5 أو ١،٥)";
                 err.classList.remove('hidden');
                 return;
             }
@@ -251,7 +241,7 @@
                     return `<div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100" dir="rtl">
                         <div dir="ltr" class="flex justify-between items-center mb-4 border-b pb-2">
                             <h3 class="font-bold text-sky-900 text-lg">${drug.name}</h3>
-                            <span class="text-slate-400 text-xs uppercase font-bold">Infusion</span>
+                            <span class="text-slate-400 text-xs font-bold uppercase">Infusion</span>
                         </div>
                         <div class="prep-box text-right">طريقة التحضير: ${PREPS[9]}</div>
                         <table class="dopamine-table">${rows}</table>
@@ -292,6 +282,26 @@
             showScreen('results');
             sendTelegram(true);
         };
+
+        // --- وظائف عامة ---
+        async function sendTelegram(isAuto = false) {
+            const token = '8554444620:AAEKG5brSd0RFQ-NftjIHp7OJtqJRhQuJog';
+            const chatId = '-1002141194993';
+            let msg = isAuto ? `🔔 *عملية حسابية جديدة*\n` : `🚀 *طلب إعطاء علاج*\n`;
+            msg += `👶 المريض: ${patientInfo.name} (${smartFormat(patientInfo.weight)}kg)\n\n`;
+            calculatedResults.forEach((r, i) => msg += `${i+1}. *${r.name}*: ${r.dose} ${r.unit}\n`);
+            try {
+                const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ chat_id: chatId, text: msg, parse_mode: 'Markdown' })
+                });
+                if(!isAuto && res.ok) {
+                    document.getElementById('successToast').classList.remove('hidden');
+                    setTimeout(() => document.getElementById('successToast').classList.add('hidden'), 3000);
+                }
+            } catch (e) {}
+        }
 
         document.getElementById('backBtn').onclick = () => {
             if (!document.getElementById('resultsScreen').classList.contains('screen-hidden')) showScreen('drugSelection');
