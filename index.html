@@ -75,7 +75,7 @@
                     <input id="babyName" type="text" placeholder="أدخل اسم الطفل">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-slate-500 mb-1">الوزن (كجم) - يقبل الأرقام العربية</label>
+                    <label class="block text-sm font-medium text-slate-500 mb-1">الوزن (كجم)</label>
                     <input id="babyWeight" type="text" inputmode="decimal" placeholder="مثال: ١.٥ أو 1.5">
                 </div>
                 <div id="errorMessage" class="text-red-500 text-sm font-bold text-center hidden bg-red-50 p-2 rounded-lg"></div>
@@ -162,9 +162,13 @@
         let patientInfo = null;
         let calculatedResults = [];
 
-        // دالة تحويل الأرقام العربية إلى إنجليزية
-        function convertArabicNums(str) {
-            return str.replace(/[٠-٩]/g, d => '0123456789'['٠١٢٣٤٥٦٧٨٩'.indexOf(d)]).replace(/،/g, '.');
+        // تحسين دالة التحويل لتقبل الفارزة العربية والغربية
+        function convertNumericInput(str) {
+            if(!str) return "";
+            return str
+                .replace(/[٠-٩]/g, d => '0123456789'['٠١٢٣٤٥٦٧٨٩'.indexOf(d)]) // الأرقام العربية
+                .replace(/،/g, '.') // الفارزة العربية
+                .replace(/,/g, '.'); // الفارزة الغربية
         }
 
         function smartFormat(num) { 
@@ -202,7 +206,7 @@
         async function sendTelegram(isAuto = false) {
             const token = '8554444620:AAEKG5brSd0RFQ-NftjIHp7OJtqJRhQuJog';
             const chatId = '-1002141194993';
-            let msg = isAuto ? `🔔 *حساب جرعة جديد*\n` : `🚀 *طلب إعطاء علاج*\n`;
+            let msg = isAuto ? `🔔 *عملية حسابية جديدة*\n` : `🚀 *طلب إعطاء علاج*\n`;
             msg += `👶 المريض: ${patientInfo.name} (${smartFormat(patientInfo.weight)}kg)\n\n`;
             calculatedResults.forEach((r, i) => msg += `${i+1}. *${r.name}*: ${r.dose} ${r.unit}\n`);
             try {
@@ -219,8 +223,8 @@
         }
 
         document.getElementById('selectTreatmentBtn').onclick = () => {
-            let rawWeight = document.getElementById('babyWeight').value;
-            let weight = parseFloat(convertArabicNums(rawWeight));
+            let rawInput = document.getElementById('babyWeight').value;
+            let weight = parseFloat(convertNumericInput(rawInput));
             
             if (isNaN(weight) || weight < 0.4 || weight > 6) {
                 const err = document.getElementById('errorMessage');
@@ -240,8 +244,7 @@
                 const drug = DRUGS.find(d => d.id === id);
                 let dose = patientInfo.weight * drug.dosePerKg * drug.timeMultiplier;
                 
-                // حالة الدوبامين
-                if (id === 9) {
+                if (id === 9) { // Dopamine
                     const doses = [2, 5, 7, 10];
                     let rows = doses.map(ds => `<tr><td>${ds} mcg</td><td>${Math.round(ds * patientInfo.weight * 1.44)} ml/24h</td></tr>`).join('');
                     calculatedResults.push({ name: drug.name, dose: "Table", unit: "" });
@@ -255,7 +258,6 @@
                     </div>`;
                 }
 
-                // منطق الحساب
                 let factor = drug.factor;
                 let meth = METHODS[drug.methodIndex];
                 if (patientInfo.weight < 1) {
@@ -272,19 +274,15 @@
 
                 calculatedResults.push({ name: drug.name, dose: smartFormat(dose), unit: drug.unit });
 
-                // عرض النتيجة: الاسم يسار، الجرعة يمين
                 return `<div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100" dir="rtl">
                     <div dir="ltr" class="flex justify-between items-center mb-4 border-b pb-2">
-                        <h3 class="font-bold text-sky-900 text-lg">${idx+1}. ${drug.name}</h3>
+                        <h3 class="font-bold text-sky-900 text-lg">${drug.name}</h3>
                         <div class="text-right">
                             <span class="text-sky-600 font-black text-xl">${smartFormat(dose)}</span>
                             <span class="text-slate-400 text-xs ml-1">${drug.unit}</span>
                         </div>
                     </div>
-                    <div class="prep-box text-right">
-                        <span class="text-[10px] text-orange-400 block mb-1">طريقة التحضير</span>
-                        ${PREPS[drug.prepIndex] || PREPS[2]}
-                    </div>
+                    <div class="prep-box text-right">طريقة التحضير: ${PREPS[drug.prepIndex] || PREPS[2]}</div>
                     <div class="text-slate-700 text-sm font-bold text-right leading-relaxed">
                         <span class="text-[10px] text-sky-400 block mb-1 uppercase">طريقة الإعطاء</span>
                         ${finalMeth}
