@@ -120,8 +120,13 @@
             2: 'تخفف حسب البروتوكول المعتمد للقسم',
             3: 'تسحب الجرعة مباشرة من الامبولة',
             4: 'تحل الفيالة بقوة 150mg او 4.5MIU ب9 سيسي ماء مقطر حصراً، وبقوة 1MIU ب2 سيسي ماء مقطر حصراً',
+            5: 'تحل الفيالة بقوة 50mg ب 5.3 سيسي كلوكوز وتر ، ويسحب 5 سيسي فقط من الفيالة وتضاف الى 20 سيسي كلوكوز وتر',
+            6: 'تحل الفيالة بقوة 1gm ب20 سيسي نورمال سلاين، وبقوة 500mg ب10 سيسي نورمال سلاين',
+            7: 'تخفف 10 يونت من الامبولة الى 5 سيسي مع نورمال سلاين',
+            8: 'تخفف 1 مل من الامبولة الى 5 سيسي نورمال سلاين',
             9: '1 مل (40 ملغم) دوبامين + 39 مل جلوكوز ووتر (المجموع 40 مل)',
-            14: 'تحل الامبولة بـ 20 سيسي نورمال سلاين'
+            10: 'تحل الامبولة ب5 سيسي نورمال سلاين',
+            14: 'تخفف الامبولة بـ 20 سيسي نورمال سلاين'
         };
 
         // 2. مصفوفة الأدوية
@@ -132,16 +137,16 @@
             { id: 4, name: 'Caffeine Maint.', dosePerKg: 10, unit: 'mg', factor: 50, methodIndex: 4, prepIndex: 3, timeMultiplier: 1 },
             { id: 5, name: 'Colistin Loading', dosePerKg: 150000, unit: 'IU', factor: 30, methodIndex: 5, prepIndex: 4, timeMultiplier: 1 },
             { id: 6, name: 'Colistin Maint.', dosePerKg: 37500, unit: 'IU', factor: 7.5, methodIndex: 6, prepIndex: 4, timeMultiplier: 1 },
-            { id: 7, name: 'Tigecycline', dosePerKg: 2, unit: 'mg', factor: 2, methodIndex: 7, prepIndex: 2, timeMultiplier: 1 },
-            { id: 8, name: 'Meropenem', dosePerKg: 40, unit: 'mg', factor: 1.6, methodIndex: 8, prepIndex: 2, timeMultiplier: 1 },
+            { id: 7, name: 'Tigecycline', dosePerKg: 2, unit: 'mg', factor: 2, methodIndex: 7, prepIndex: 5, timeMultiplier: 1 },
+            { id: 8, name: 'Meropenem', dosePerKg: 40, unit: 'mg', factor: 1.6, methodIndex: 8, prepIndex: 6, timeMultiplier: 1 },
             { id: 9, name: 'Dopamine', dosePerKg: 5, unit: 'mcg', factor: 36, methodIndex: 9, prepIndex: 9, timeMultiplier: 1440 },
-            { id: 10, name: 'Dexmedetomidine', dosePerKg: 0.3, unit: 'mcg', factor: 14.4, methodIndex: 10, prepIndex: 2, timeMultiplier: 24 },
-            { id: 11, name: 'Dexmedetomidine Load', dosePerKg: 0.1, unit: 'mcg', factor: 5, methodIndex: 11, prepIndex: 2, timeMultiplier: 1 },
-            { id: 12, name: 'Midazolam Loading', dosePerKg: 0.1, unit: 'mg', factor: 10, methodIndex: 12, prepIndex: 2, timeMultiplier: 1 },
-            { id: 13, name: 'Midazolam Maint.', dosePerKg: 0.03, unit: 'mg', factor: 14.4, methodIndex: 13, prepIndex: 2, timeMultiplier: 24 },
+            { id: 10, name: 'Dexmedetomidine', dosePerKg: 0.3, unit: 'mcg', factor: 14.4, methodIndex: 10, prepIndex: 3, timeMultiplier: 24 },
+            { id: 11, name: 'Dexmedetomidine Load', dosePerKg: 0.1, unit: 'mcg', factor: 5, methodIndex: 11, prepIndex: 7, timeMultiplier: 1 },
+            { id: 12, name: 'Midazolam Loading', dosePerKg: 0.1, unit: 'mg', factor: 10, methodIndex: 12, prepIndex: 8, timeMultiplier: 1 },
+            { id: 13, name: 'Midazolam Maint.', dosePerKg: 0.03, unit: 'mg', factor: 14.4, methodIndex: 13, prepIndex: 3, timeMultiplier: 24 },
             { id: 14, name: 'Phenobarbital Load', dosePerKg: 20, unit: 'mg', factor: 4, methodIndex: 14, prepIndex: 14, timeMultiplier: 1 },
             { id: 15, name: 'Phenobarbital Maint.', dosePerKg: 2.5, unit: 'mg', factor: 0.5, methodIndex: 15, prepIndex: 14, timeMultiplier: 1 },
-            { id: 16, name: 'Hydrocortisone', dosePerKg: 2, unit: 'mg', factor: 10, methodIndex: 16, prepIndex: 2, timeMultiplier: 1 }
+            { id: 16, name: 'Hydrocortisone', dosePerKg: 2, unit: 'mg', factor: 10, methodIndex: 16, prepIndex: 10, timeMultiplier: 1 }
         ];
 
         // 3. مصفوفة طرق الإعطاء
