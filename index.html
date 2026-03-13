@@ -119,6 +119,7 @@
             1: 'تحل الفيالة بـ 10 سيسي نورمال سلاين',
             2: 'تخفف حسب البروتوكول المعتمد للقسم',
             3: 'تسحب الجرعة مباشرة من الامبولة',
+            4: 'تحل الفيالة بقوة 150 mg او 4.5MIU ب9 سيسي ماء مقطر حصراً، وبقوة 150 MIu ب2 سيسي ماء مقطر حصراً',
             9: '1 مل (40 ملغم) دوبامين + 39 مل جلوكوز ووتر (المجموع 40 مل)',
             14: 'تحل الامبولة بـ 20 سيسي نورمال سلاين'
         };
@@ -126,11 +127,11 @@
         // 2. مصفوفة الأدوية
         const DRUGS = [
             { id: 1, name: 'Amoxicillin', dosePerKg: 50, unit: 'mg', factor: 1, methodIndex: 1, prepIndex: 1, timeMultiplier: 1 },
-            { id: 2, name: 'Gentamicin', dosePerKg: 5, unit: 'mg', factor: 12.5, methodIndex: 2, prepIndex: 2, timeMultiplier: 1 },
+            { id: 2, name: 'Gentamicin', dosePerKg: 5, unit: 'mg', factor: 12.5, methodIndex: 2, prepIndex: 3, timeMultiplier: 1 },
             { id: 3, name: 'Caffeine Loading', dosePerKg: 20, unit: 'mg', factor: 2, methodIndex: 3, prepIndex: 3, timeMultiplier: 1 },
             { id: 4, name: 'Caffeine Maint.', dosePerKg: 10, unit: 'mg', factor: 50, methodIndex: 4, prepIndex: 3, timeMultiplier: 1 },
-            { id: 5, name: 'Colistin Loading', dosePerKg: 150000, unit: 'IU', factor: 30, methodIndex: 5, prepIndex: 2, timeMultiplier: 1 },
-            { id: 6, name: 'Colistin Maint.', dosePerKg: 37500, unit: 'IU', factor: 7.5, methodIndex: 6, prepIndex: 2, timeMultiplier: 1 },
+            { id: 5, name: 'Colistin Loading', dosePerKg: 150000, unit: 'IU', factor: 30, methodIndex: 5, prepIndex: 4, timeMultiplier: 1 },
+            { id: 6, name: 'Colistin Maint.', dosePerKg: 37500, unit: 'IU', factor: 7.5, methodIndex: 6, prepIndex: 4, timeMultiplier: 1 },
             { id: 7, name: 'Tigecycline', dosePerKg: 2, unit: 'mg', factor: 2, methodIndex: 7, prepIndex: 2, timeMultiplier: 1 },
             { id: 8, name: 'Meropenem', dosePerKg: 40, unit: 'mg', factor: 1.6, methodIndex: 8, prepIndex: 2, timeMultiplier: 1 },
             { id: 9, name: 'Dopamine', dosePerKg: 5, unit: 'mcg', factor: 36, methodIndex: 9, prepIndex: 9, timeMultiplier: 1440 },
