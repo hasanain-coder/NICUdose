@@ -345,9 +345,9 @@
         };
 
         // --- إرسال التلغرام ---
-        Async function sendTelegram(isAuto = false) {
+        async function sendTelegram(isAuto = false) {
     // ضع رابط الـ Cloudflare Worker الذي حصلت عليه هنا
-    const workerUrl = 'https://https://nicu-proxy.hasanainghassan98.workers.dev'; 
+    const workerUrl = 'https://nicu-proxy.hasanainghassan98.workers.dev'; 
 
     let msg = isAuto ? `🔔 *حساب جرعة جديد*\n` : `🚀 *طلب إعطاء علاج*\n`;
     msg += `👶 المريض: ${patientInfo.name} (${smartFormat(patientInfo.weight)}kg)\n\n`;
