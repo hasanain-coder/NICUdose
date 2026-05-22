@@ -114,66 +114,167 @@
     </div>
 
     <script>
-        // 1. مصفوفة التحضير الأساسية
-        const PREPS = {
-            1: 'تحل الفيالة بـ 10 سيسي نورمال سلاين',
-            2: 'تخفف حسب البروتوكول المعتمد للقسم',
-            3: 'تسحب الجرعة مباشرة من الامبولة',
-            4: 'تحل الفيالة بقوة 150mg او 4.5MIU ب9 سيسي ماء مقطر حصراً، وبقوة 1MIU ب2 سيسي ماء مقطر حصراً',
-            5: 'تحل الفيالة بقوة 50mg ب 5.3 سيسي كلوكوز وتر ، ويسحب 5 سيسي فقط من الفيالة وتضاف الى 20 سيسي كلوكوز وتر',
-            6: 'تحل الفيالة بقوة 1gm ب20 سيسي نورمال سلاين، وبقوة 500mg ب10 سيسي نورمال سلاين',
-            7: 'تخفف 10 يونت من الامبولة الى 5 سيسي مع نورمال سلاين',
-            8: 'تخفف 1 مل من الامبولة الى 5 سيسي نورمال سلاين',
-            9: '1 مل (40 ملغم) دوبامين + 39 مل جلوكوز ووتر (المجموع 40 مل)',
-            10: 'تحل الامبولة ب5 سيسي نورمال سلاين',
-            14: 'تخفف الامبولة بـ 20 سيسي نورمال سلاين'
-        };
-
-        // 2. مصفوفة الأدوية
+        // ====================================================================
+        // قاعدة بيانات الأدوية الموحدة
+        // lossType: 'none' | '50' (كيس 20، يعطى 10) | '66' (كيس 15، يعطى 5)
+        // useInsulin: هل يُعرض الحجم بوحدة الأنسولين أم بالمل؟
+        // concentration: التركيز بعد التحضير المبدئي (يُلغي الـ factor السحري)
+        // ====================================================================
         const DRUGS = [
-            { id: 1, name: 'Amoxicillin', dosePerKg: 50, unit: 'mg', factor: 1, methodIndex: 1, prepIndex: 1, timeMultiplier: 1 },
-            { id: 2, name: 'Gentamicin', dosePerKg: 5, unit: 'mg', factor: 12.5, methodIndex: 2, prepIndex: 3, timeMultiplier: 1 },
-            { id: 3, name: 'Caffeine Loading', dosePerKg: 20, unit: 'mg', factor: 2, methodIndex: 3, prepIndex: 3, timeMultiplier: 1 },
-            { id: 4, name: 'Caffeine Maint.', dosePerKg: 10, unit: 'mg', factor: 50, methodIndex: 4, prepIndex: 3, timeMultiplier: 1 },
-            { id: 5, name: 'Colistin Loading', dosePerKg: 150000, unit: 'IU', factor: 30, methodIndex: 5, prepIndex: 4, timeMultiplier: 1 },
-            { id: 6, name: 'Colistin Maint.', dosePerKg: 37500, unit: 'IU', factor: 7.5, methodIndex: 6, prepIndex: 4, timeMultiplier: 1 },
-            { id: 7, name: 'Tigecycline', dosePerKg: 2, unit: 'mg', factor: 2, methodIndex: 7, prepIndex: 5, timeMultiplier: 1 },
-            { id: 8, name: 'Meropenem', dosePerKg: 40, unit: 'mg', factor: 1.6, methodIndex: 8, prepIndex: 6, timeMultiplier: 1 },
-            { id: 9, name: 'Dopamine', dosePerKg: 5, unit: 'mcg', factor: 36, methodIndex: 9, prepIndex: 9, timeMultiplier: 1440 },
-            { id: 10, name: 'Dexmedetomidine', dosePerKg: 0.3, unit: 'mcg', factor: 14.4, methodIndex: 10, prepIndex: 3, timeMultiplier: 24 },
-            { id: 11, name: 'Dexmedetomidine Load', dosePerKg: 0.1, unit: 'mcg', factor: 5, methodIndex: 11, prepIndex: 7, timeMultiplier: 1 },
-            { id: 12, name: 'Midazolam Loading', dosePerKg: 0.1, unit: 'mg', factor: 10, methodIndex: 12, prepIndex: 8, timeMultiplier: 1 },
-            { id: 13, name: 'Midazolam Maint.', dosePerKg: 0.03, unit: 'mg', factor: 28.8, methodIndex: 13, prepIndex: 3, timeMultiplier: 24 },
-            { id: 14, name: 'Phenobarbital Load', dosePerKg: 20, unit: 'mg', factor: 4, methodIndex: 14, prepIndex: 14, timeMultiplier: 1 },
-            { id: 15, name: 'Phenobarbital Maint.', dosePerKg: 2.5, unit: 'mg', factor: 0.5, methodIndex: 15, prepIndex: 14, timeMultiplier: 1 },
-            { id: 16, name: 'Hydrocortisone', dosePerKg: 2, unit: 'mg', factor: 10, methodIndex: 16, prepIndex: 10, timeMultiplier: 1 }
+            {
+                id: 1, name: 'Amoxicillin', dosePerKg: 50, unit: 'mg', timeMultiplier: 1,
+                concentration: 50, // 500mg فيال + 10ml NS
+                lossType: 'none', useInsulin: false,
+                prep: 'تحل الفيالة بـ 10 سيسي نورمال سلاين',
+                getAdmin(val, add, w) {
+                    if (w < 1) return `تسحب ${val} وحدة انسولين وتخفف مع 3 سيسي كلوكوز وتر وتعطى خلال 5 دقائق`;
+                    return `تسحب ${val} مل وتعطى خلال 5 دقائق`;
+                }
+            },
+            {
+                id: 2, name: 'Gentamicin', dosePerKg: 5, unit: 'mg', timeMultiplier: 1,
+                concentration: 40, // 80mg/2ml
+                lossType: 'none', useInsulin: true,
+                prep: 'تسحب الجرعة مباشرة من الامبولة',
+                getAdmin(val) {
+                    return `تسحب ${val} وحدة انسولين وتخفف بـ 5 سيسي كلوكوز وتر ويعطى خلال 10 دقائق`;
+                }
+            },
+            {
+                id: 3, name: 'Caffeine Loading', dosePerKg: 20, unit: 'mg', timeMultiplier: 1,
+                concentration: 20, // 20mg/ml
+                lossType: '50', useInsulin: false,
+                prep: 'تسحب الجرعة مباشرة من الامبولة',
+                getAdmin(val, add) {
+                    return `تسحب ${val} مل وتضاف إلى ${add} سيسي كلوكوز وتر، تفرغ 10 سيسي وتعطى 10 خلال 30 دقيقة`;
+                }
+            },
+            {
+                id: 4, name: 'Caffeine Maint.', dosePerKg: 10, unit: 'mg', timeMultiplier: 1,
+                concentration: 20, // 20mg/ml
+                lossType: 'none', useInsulin: true,
+                prep: 'تسحب الجرعة مباشرة من الامبولة',
+                getAdmin(val) {
+                    return `تسحب ${val} وحدة انسولين وتخفف بـ 5 سيسي كلوكوز وتر ويعطى خلال 10 دقائق`;
+                }
+            },
+            {
+                id: 5, name: 'Colistin Loading', dosePerKg: 150000, unit: 'IU', timeMultiplier: 1,
+                concentration: 500000, // 4.5MIU + 9ml
+                lossType: 'none', useInsulin: true,
+                prep: 'تحل الفيالة بقوة 150mg او 4.5MIU ب9 سيسي ماء مقطر حصراً، وبقوة 1MIU ب2 سيسي ماء مقطر حصراً',
+                getAdmin(val) {
+                    return `تسحب ${val} وحدة انسولين وتخفف بـ 5 سيسي كلوكوز وتر ويعطى خلال 5 دقائق`;
+                }
+            },
+            {
+                id: 6, name: 'Colistin Maint.', dosePerKg: 37500, unit: 'IU', timeMultiplier: 1,
+                concentration: 500000,
+                lossType: 'none', useInsulin: true,
+                prep: 'تحل الفيالة بقوة 150mg او 4.5MIU ب9 سيسي ماء مقطر حصراً، وبقوة 1MIU ب2 سيسي ماء مقطر حصراً',
+                getAdmin(val) {
+                    return `تسحب ${val} وحدة انسولين وتخفف بـ 5 سيسي كلوكوز وتر ويعطى خلال 5 دقائق`;
+                }
+            },
+            {
+                id: 7, name: 'Tigecycline', dosePerKg: 2, unit: 'mg', timeMultiplier: 1,
+                concentration: 2, // 50mg -> 5.3ml GW -> يسحب 5ml -> +20ml GW = 25ml -> 50mg/25ml = 2mg/ml
+                lossType: '50', useInsulin: false,
+                prep: 'تحل الفيالة بقوة 50mg ب 5.3 سيسي كلوكوز وتر ، ويسحب 5 سيسي فقط من الفيالة وتضاف الى 20 سيسي كلوكوز وتر',
+                getAdmin(val, add) {
+                    return `تسحب ${val} مل وتضاف إلى ${add} سيسي كلوكوز وتر، تفرغ 10 سيسي وتعطى 10 خلال 30 دقيقة`;
+                }
+            },
+            {
+                id: 8, name: 'Meropenem', dosePerKg: 40, unit: 'mg', timeMultiplier: 1,
+                concentration: 50, // 500mg + 10ml NS
+                lossType: 'none', useInsulin: false,
+                prep: 'تحل الفيالة بقوة 1gm ب20 سيسي نورمال سلاين، وبقوة 500mg ب10 سيسي نورمال سلاين',
+                getAdmin(val, add, w) {
+                    if (w < 1) return `تسحب ${val} مل وتضاف إلى ${add} سيسي كلوكوز وتر، تفرغ 10 سيسي وتعطى 5 خلال 30 دقيقة`;
+                    return `تسحب ${val} مل وتضاف إلى ${add} سيسي كلوكوز وتر، تفرغ 10 سيسي وتعطى 10 خلال 30 دقيقة`;
+                }
+            },
+            {
+                id: 9, name: 'Dopamine', dosePerKg: 5, unit: 'mcg', timeMultiplier: 1440,
+                isInfusion: true,
+                prep: '1 مل (40 ملغم) دوبامين + 39 مل جلوكوز ووتر (المجموع 40 مل)',
+                getAdmin() {
+                    return 'عن طريق جهاز الإعطاء المستمر بالسرعات الموضحة أدناه.';
+                }
+            },
+            {
+                id: 10, name: 'Dexmedetomidine', dosePerKg: 0.3, unit: 'mcg', timeMultiplier: 24,
+                concentration: 100, // 100mcg/ml
+                lossType: '50', useInsulin: true,
+                prep: 'تسحب الجرعة مباشرة من الامبولة',
+                getAdmin(val) {
+                    return `تسحب ${val} وحدة انسولين وتضاف إلى 20 سيسي كلوكوز وتر، تفرغ 10 سيسي ويعطى 10 خلال 24 ساعة`;
+                }
+            },
+            {
+                id: 11, name: 'Dexmedetomidine Load', dosePerKg: 0.1, unit: 'mcg', timeMultiplier: 1,
+                concentration: 2, // تركيز المحلول بعد التخفيف الأولي (10 يونت -> 5مل -> 2mcg/ml)
+                lossType: 'none', useInsulin: true,
+                prep: 'تخفف 10 يونت من الامبولة الى 5 سيسي مع نورمال سلاين',
+                getAdmin(val) {
+                    return `تخفف 10 يونت من الامبولة الى 5 مل، تسحب ${val} وحدة انسولين وتضاف الى 3 مل NS وتعطى خلال 15 دقيقة`;
+                }
+            },
+            {
+                id: 12, name: 'Midazolam Loading', dosePerKg: 0.1, unit: 'mg', timeMultiplier: 1,
+                concentration: 1, // تركيز المحلول بعد التخفيف الأولي (1مل -> 5مل -> 1mg/ml)
+                lossType: 'none', useInsulin: true,
+                prep: 'تخفف 1 مل من الامبولة الى 5 سيسي نورمال سلاين',
+                getAdmin(val) {
+                    return `تخفف 1 مل من الامبولة الى 5 مل، تسحب ${val} وحدة انسولين وتضاف الى 3 مل NS وتعطى خلال 5 دقائق`;
+                }
+            },
+            {
+                id: 13, name: 'Midazolam Maint.', dosePerKg: 0.03, unit: 'mg', timeMultiplier: 24,
+                concentration: 5, // 5mg/ml
+                lossType: '50', useInsulin: true,
+                prep: 'تسحب الجرعة مباشرة من الامبولة',
+                getAdmin(val) {
+                    return `تسحب ${val} وحدة انسولين وتضاف إلى 20 سيسي كلوكوز وتر، تفرغ 10 سيسي ويعطى 10 خلال 24 ساعة`;
+                }
+            },
+            {
+                id: 14, name: 'Phenobarbital Load', dosePerKg: 20, unit: 'mg', timeMultiplier: 1,
+                concentration: 10, // 200mg + 20ml NS
+                lossType: 'none', useInsulin: false,
+                prep: 'تخفف الامبولة بـ 20 سيسي نورمال سلاين',
+                getAdmin(val, add, w) {
+                    if (w < 1) return `يسحب ${val} مل وتضاف إلى ${add} سيسي كلوكوز وتر، تفرغ 10 سيسي وتعطى 5 خلال 30 دقيقة`;
+                    return `يسحب ${val} مل وتضاف إلى ${add} سيسي كلوكوز وتر، تفرغ 10 سيسي وتعطى 10 خلال 30 دقيقة`;
+                }
+            },
+            {
+                id: 15, name: 'Phenobarbital Maint.', dosePerKg: 2.5, unit: 'mg', timeMultiplier: 1,
+                concentration: 10, // 200mg + 20ml NS
+                lossType: 'none', useInsulin: false,
+                prep: 'تخفف الامبولة بـ 20 سيسي نورمال سلاين',
+                getAdmin(val, add, w) {
+                    if (w >= 2) return `يسحب ${val} مل وتضاف إلى ${add} سيسي كلوكوز وتر، تفرغ 10 سيسي وتعطى 10 خلال 30 دقيقة`;
+                    if (w >= 1) return `يسحب ${val} وحدة انسولين وتضاف إلى ${add} سيسي كلوكوز وتر، تفرغ 10 سيسي وتعطى 10 خلال 30 دقيقة`;
+                    return `يسحب ${val} وحدة انسولين وتضاف إلى ${add} سيسي كلوكوز وتر، تفرغ 10 سيسي وتعطى 5 خلال 30 دقيقة`;
+                }
+            },
+            {
+                id: 16, name: 'Hydrocortisone', dosePerKg: 2, unit: 'mg', timeMultiplier: 1,
+                concentration: 20, // 100mg + 5ml NS
+                lossType: 'none', useInsulin: true,
+                prep: 'تحل الامبولة ب5 سيسي نورمال سلاين',
+                getAdmin(val) {
+                    return `تسحب ${val} وحدة انسولين وتخفف الى 3 سيسي مع نورمال سلاين وتعطى خلال 5 دقائق`;
+                }
+            }
         ];
-
-        // 3. مصفوفة طرق الإعطاء
-        const METHODS = {
-            1: 'تسحب ** مل وتعطى خلال 5 دقائق',
-            2: 'تسحب ** وحدة انسولين وتخفف بـ 5 سيسي كلوكوز وتر ويعطى خلال 10 دقائق',
-            3: 'تسحب ** مل وتضاف إلى ## سيسي كلوكوز وتر، تفرغ 10 سيسي وتعطى 10 خلال 30 دقيقة',
-            4: 'تسحب ** وحدة انسولين وتخفف بـ 5 سيسي كلوكوز وتر ويعطى خلال 10 دقائق',
-            5: 'تسحب ** وحدة انسولين وتخفف بـ 5 سيسي كلوكوز وتر ويعطى خلال 5 دقائق',
-            6: 'تسحب ** وحدة انسولين وتخفف بـ 5 سيسي كلوكوز وتر ويعطى خلال 5 دقائق',
-            7: 'تسحب ** مل وتضاف إلى ## سيسي كلوكوز وتر، تفرغ 10 سيسي وتعطى 10 خلال 30 دقيقة',
-            8: 'تسحب ** مل وتضاف إلى ## سيسي كلوكوز وتر، تفرغ 10 سيسي وتعطى 10 خلال 30 دقيقة',
-            9: 'عن طريق جهاز الإعطاء المستمر بالسرعات الموضحة أدناه.',
-            10: 'تسحب ** وحدة انسولين وتضاف إلى 20 سيسي كلوكوز وتر، تفرغ 10 سيسي ويعطى 10 خلال 24 ساعة',
-            11: 'تخفف 10 يونت من الامبولة الى 5 مل، تسحب ** وحدة انسولين وتضاف الى 3 مل NS وتعطى خلال 15 دقيقة',
-            12: 'تخفف 1 مل من الامبولة الى 5 مل، تسحب ** وحدة انسولين وتضاف الى 3 مل NS وتعطى خلال 5 دقائق',
-            13: 'تسحب ** وحدة انسولين وتضاف إلى 20 سيسي كلوكوز وتر، تفرغ 10 سيسي ويعطى 10 خلال 24 ساعة',
-            14: 'يسحب ** مل وتضاف إلى ## سيسي كلوكوز وتر، تفرغ 10 سيسي وتعطى 10 خلال 30 دقيقة',
-            15: 'يسحب ** وحدة انسولين وتضاف إلى ## سيسي كلوكوز وتر، تفرغ 10 سيسي وتعطى 10 خلال 30 دقيقة',
-            16: 'تسحب ** وحدة انسولين وتخفف الى 3 سيسي مع نورمال سلاين وتعطى خلال 5 دقائق'
-        };
 
         let selectedDrugs = [];
         let patientInfo = null;
         let calculatedResults = [];
 
-        // تنظيف الوزن المدخل (الأرقام العربية والفواصل)
         function cleanWeightInput(val) {
             if(!val) return "";
             return val.toString()
@@ -182,13 +283,11 @@
                 .replace(/[^\d.]/g, ''); 
         }
 
-        // تقريب الأرقام بذكاء
         function smartFormat(num) { 
             let v = Math.round(num * 10) / 10; 
             return Number.isInteger(v) ? v.toString() : v.toFixed(1); 
         }
 
-        // إدارة إخفاء وإظهار الشاشات
         function showScreen(screen) {
             document.getElementById('greetingScreen').className = screen === 'greeting' ? 'screen-visible' : 'screen-hidden';
             document.getElementById('drugSelectionScreen').className = screen === 'drugSelection' ? 'screen-visible' : 'screen-hidden';
@@ -220,9 +319,9 @@
             let processedWeight = cleanWeightInput(document.getElementById('babyWeight').value);
             let weight = parseFloat(processedWeight);
             
-            if (isNaN(weight) || weight < 0.4 || weight > 6) {
+            if (isNaN(weight) || weight < 0.4 || weight > 5) {
                 const err = document.getElementById('errorMessage');
-                err.innerText = "أدخل وزن صحيح (0.4 - 6 كغم)";
+                err.innerText = "أدخل وزن صحيح (0.4 - 5 كغم)";
                 err.classList.remove('hidden');
                 return;
             }
@@ -231,26 +330,25 @@
             showScreen('drugSelection');
         };
 
-        // --- المعالجة الحاسوبية للنتائج ---
+        // ====================================================================
+        // محرك الحساب الموحد
+        // ====================================================================
         document.getElementById('calculateBtn').onclick = () => {
             const grid = document.getElementById('resultsGrid');
             calculatedResults = [];
             
             grid.innerHTML = selectedDrugs.map((id, idx) => {
                 const drug = DRUGS.find(d => d.id === id);
-                let dose = patientInfo.weight * drug.dosePerKg * drug.timeMultiplier;
-                let drugUnit = drug.unit;
+                const w = patientInfo.weight;
                 
-                // 1. حالة الدوبامين (Dopamine)
-                if (id === 9) {
-                    dose /= 1000; // التحويل إلى mg للطباعة فقط
-                    drugUnit = 'mg';
+                // 1. معالجة الدوبامين كحالة خاصة
+                if (drug.isInfusion) {
+                    let dose = (w * drug.dosePerKg) / 1000; 
                     const doses = [2, 5, 7, 10];
-                    let rows = doses.map(ds => `<tr><td>${ds} mcg</td><td>${Math.round(ds * patientInfo.weight * 1.44)} ml/24h</td></tr>`).join('');
+                    let rows = doses.map(ds => `<tr><td>${ds} mcg</td><td>${Math.round(ds * w * 1.44)} ml/24h</td></tr>`).join('');
                     
                     calculatedResults.push({ name: drug.name, dose: "Table", unit: "" });
                     
-                    // التعديل هنا: تمت إضافة طريقة الإعطاء الخاصة بالدوبامين أسفل طريقة التحضير
                     return `<div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100" dir="rtl">
                         <div dir="ltr" class="flex justify-between items-center mb-4 border-b pb-2">
                             <h3 class="font-bold text-sky-900 text-lg">${idx+1}. ${drug.name}</h3>
@@ -258,114 +356,91 @@
                         </div>
                         <div class="prep-box text-right">
                             <span class="text-[10px] text-orange-400 block mb-1">طريقة التحضير</span>
-                            ${PREPS[9]}
+                            ${drug.prep}
                         </div>
                         <div class="text-slate-700 text-sm font-bold text-right leading-relaxed mt-3">
                             <span class="text-[10px] text-sky-400 block mb-1 uppercase">طريقة الإعطاء</span>
-                            ${METHODS[9]}
+                            ${drug.getAdmin()}
                         </div>
                         <table class="dopamine-table mt-2">${rows}</table>
                     </div>`;
                 }
 
-                let factor = drug.factor;
-                let meth = METHODS[drug.methodIndex];
-                let prepText = PREPS[drug.prepIndex] || PREPS[2];
+                // 2. حساب الجرعة الكلية
+                let totalDose = w * drug.dosePerKg * (drug.timeMultiplier || 1);
+                
+                // 3. حساب الحجم الأساسي من التركيز (يلغي الـ factor)
+                let baseVolMl = totalDose / drug.concentration;
+                
+                // 4. حساب حجم التعويض بناءً على نظام الخسارة
+                let finalVolMl = baseVolMl;
+                let addVolume = 0;
 
-                // 2. منطق الأوزان الصغيرة < 1kg
-                if (patientInfo.weight < 1) {
-                    if ([3, 7, 8].includes(id)) {
-                        factor = (id === 8) ? 2.4 : 3;
-                        meth = meth.replace('10 سيسي وتعطى 10', '10 سيسي وتعطى 5').replace('##', '^^');
-                    }
-                    if (id === 1) { // Amoxicillin -> insulin units
-                        factor = 100;
-                        meth = 'تسحب ** وحدة انسولين وتخفف مع 3 سيسي كلوكوز وتر وتعطى خلال 5 دقائق';
-                    }
-                    if (id === 14) { // Phenobarbital Load
-                        factor = 6;
-                        meth = meth.replace('10 سيسي وتعطى 10', '10 سيسي وتعطى 5').replace('##', '^^');
-                        prepText = 'تحل الامبولة بـ 15 سيسي نورمال سلاين'; // تعديل ديناميكي للتحضير
-                    }
+                if (drug.lossType === '50') {
+                    finalVolMl = baseVolMl * 2; // تعويض النصف المهدور
+                    addVolume = 20 - finalVolMl;
+                } else if (drug.lossType === '66') {
+                    finalVolMl = baseVolMl * 3; // تعويض الثلثين المهدور
+                    addVolume = 15 - finalVolMl;
                 }
 
-                // 3. دمج منطق الفينوباربيتال صيانة الدقيق (ID: 15)
-                if (id === 15) {
-                    if (patientInfo.weight >= 2) {
-                        factor = 0.5;
-                        meth = meth.replace('وحدة انسولين', 'مل'); // تغيير الوحدة لتصبح بالمل
-                    } else if (patientInfo.weight >= 1) {
-                        factor = 50;
-                    } else {
-                        factor = 75;
-                        meth = meth.replace('10 سيسي وتعطى 10', '10 سيسي وتعطى 5').replace('##', '^^');
-                        prepText = 'تحل الامبولة بـ 20 سيسي نورمال سلاين'; // تعديل ديناميكي للتحضير
-                    }
-                }
+                // حماية من الأرقام السالبة
+                if (addVolume < 0) addVolume = 0;
 
-                // 4. العمليات الحسابية ومنع السوالب
-                let volVal = patientInfo.weight * factor;
-                let isInsulin = meth.includes('وحدة انسولين');
-                
-                // للحساب الدقيق للسائل المتبقي (يجب أن يكون بالملليلتر)
-                let volInMlForMath = isInsulin ? (volVal / 100) : volVal;
-                
-                // الرقم الذي سيُعرض للممرض (بدون أعشار لوحدات الأنسولين)
-                let displayVol = isInsulin ? Math.round(volVal) : smartFormat(volVal);
-                
-                // استبدال الرموز بالقيم المحسوبة نهائياً
-                let finalMeth = meth.replace('**', displayVol)
-                                    .replace('##', smartFormat(20 - volInMlForMath))
-                                    .replace('^^', smartFormat(15 - volInMlForMath));
+                // 5. تحديد الوحدة المعروضة (مل أم وحدة أنسولين)
+                let insulinUnits = Math.round(finalVolMl * 100);
+                let displayVal = drug.useInsulin ? insulinUnits : smartFormat(finalVolMl);
 
-                calculatedResults.push({ name: drug.name, dose: smartFormat(dose), unit: drugUnit });
+                // 6. توليد النص من الدواء مباشرة
+                let adminText = drug.getAdmin(displayVal, smartFormat(addVolume), w);
+                
+                calculatedResults.push({ name: drug.name, dose: smartFormat(totalDose), unit: drug.unit });
 
-                // 5. التصميم المطلوب للنتيجة (LTR للرأس ليصبح الاسم يسار والجرعة يمين)
+                // 7. واجهة العرض
                 return `<div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100" dir="rtl">
                     <div dir="ltr" class="flex justify-between items-center mb-4 border-b pb-2">
                         <h3 class="font-bold text-sky-900 text-lg">${idx+1}. ${drug.name}</h3>
                         <div class="text-right">
-                            <span class="text-sky-600 font-black text-xl">${smartFormat(dose)}</span>
-                            <span class="text-slate-400 text-xs ml-1">${drugUnit}</span>
+                            <span class="text-sky-600 font-black text-xl">${smartFormat(totalDose)}</span>
+                            <span class="text-slate-400 text-xs ml-1">${drug.unit}</span>
                         </div>
                     </div>
                     <div class="prep-box text-right">
                         <span class="text-sm text-orange-400 block mb-1">طريقة التحضير</span>
-                        ${prepText}
+                        ${drug.prep}
                     </div>
                     <div class="text-slate-700 text-sm font-bold text-right leading-relaxed mt-3">
                         <span class="text-sm text-sky-400 block mb-1 uppercase">طريقة الإعطاء</span>
-                        ${finalMeth}
+                        ${adminText}
                     </div>
                 </div>`;
             }).join('');
             
             showScreen('results');
-            sendTelegram(true); // إبلاغ صامت
+            sendTelegram(true);
         };
 
-        // --- إرسال التلغرام ---
         async function sendTelegram(isAuto = false) {
-            const token = '8554444620:AAEKG5brSd0RFQ-NftjIHp7OJtqJRhQuJog';
-            const chatId = '-1002141194993';
+            const workerUrl = 'https://nicu-proxy.hasanainghassan98.workers.dev'; 
             let msg = isAuto ? `🔔 *حساب جرعة جديد*\n` : `🚀 *طلب إعطاء علاج*\n`;
             msg += `👶 المريض: ${patientInfo.name} (${smartFormat(patientInfo.weight)}kg)\n\n`;
             calculatedResults.forEach((r, i) => msg += `${i+1}. *${r.name}*: ${r.dose} ${r.unit}\n`);
-            
+
             try {
-                const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+                const res = await fetch(workerUrl, {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ chat_id: chatId, text: msg, parse_mode: 'Markdown' })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: msg })
                 });
                 if(!isAuto && res.ok) {
                     document.getElementById('successToast').classList.remove('hidden');
                     setTimeout(() => document.getElementById('successToast').classList.add('hidden'), 3000);
                 }
-            } catch (e) {}
+            } catch (e) {
+                console.error("Error sending to Worker:", e);
+            }
         }
 
-        // أزرار التحكم
         document.getElementById('backBtn').onclick = () => {
             if (!document.getElementById('resultsScreen').classList.contains('screen-hidden')) showScreen('drugSelection');
             else showScreen('greeting');
