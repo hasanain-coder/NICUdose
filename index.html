@@ -149,7 +149,7 @@
             { id: 14, name: 'Phenobarbital Load', dosePerKg: 20, unit: 'mg', factor: 4, methodIndex: 14, prepIndex: 14, timeMultiplier: 1 },
             { id: 15, name: 'Phenobarbital Maint.', dosePerKg: 2.5, unit: 'mg', factor: 0.5, methodIndex: 15, prepIndex: 14, timeMultiplier: 1 },
             { id: 16, name: 'Hydrocortisone', dosePerKg: 2, unit: 'mg', factor: 10, methodIndex: 16, prepIndex: 10, timeMultiplier: 1 },
-            { id: 18, name: 'Aminophylline (for HIE)', dosePerKg: 5, unit: 'mg', factor: 0.4, methodIndex: 8, prepIndex: 3, timeMultiplier: 1 }
+            { id: 18, name: 'Aminophylline (for HIE)', dosePerKg: 5, unit: 'mg', factor: 40, methodIndex: 15, prepIndex: 3, timeMultiplier: 1 }
         ];
 
         // 3. مصفوفة طرق الإعطاء
@@ -306,6 +306,11 @@
                         prepText = 'تحل الامبولة بـ 20 سيسي نورمال سلاين'; // تعديل ديناميكي للتحضير
                     }
                 }
+                if (id === 18) {
+                    if (patientInfo.weight >= 2.5) {
+                        factor = 0.4;
+                        meth = meth.replace('وحدة انسولين', 'مل')}
+                    }
 
                 // 4. العمليات الحسابية ومنع السوالب
                 let volVal = patientInfo.weight * factor;
