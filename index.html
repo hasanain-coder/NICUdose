@@ -126,12 +126,14 @@
             8: 'تخفف 1 مل من الامبولة الى 5 سيسي نورمال سلاين',
             9: '1 مل (40 ملغم) دوبامين + 39 مل جلوكوز ووتر (المجموع 40 مل)',
             10: 'تحل الامبولة ب5 سيسي نورمال سلاين',
-            14: 'تخفف الامبولة بـ 20 سيسي نورمال سلاين'
-        };
+            14: 'تخفف الامبولة بـ 20 سيسي نورمال سلاين',
+            11:'تخفف الامبولة مع 60 سيسي نورمال سلاين'
+                    };
 
         // 2. مصفوفة الأدوية
         const DRUGS = [
             { id: 1, name: 'Amoxicillin', dosePerKg: 50, unit: 'mg', factor: 1, methodIndex: 1, prepIndex: 1, timeMultiplier: 1 },
+            { id: 17, name: 'Amikacin', dosePerKg: 15, unit: 'mg', factor: 8, methodIndex: 17, prepIndex: 11, timeMultiplier: 1 },
             { id: 2, name: 'Gentamicin', dosePerKg: 5, unit: 'mg', factor: 12.5, methodIndex: 2, prepIndex: 3, timeMultiplier: 1 },
             { id: 3, name: 'Caffeine Loading', dosePerKg: 20, unit: 'mg', factor: 2, methodIndex: 3, prepIndex: 3, timeMultiplier: 1 },
             { id: 4, name: 'Caffeine Maint.', dosePerKg: 10, unit: 'mg', factor: 50, methodIndex: 4, prepIndex: 3, timeMultiplier: 1 },
@@ -166,8 +168,9 @@
             13: 'تسحب ** وحدة انسولين وتضاف إلى 20 سيسي كلوكوز وتر، تفرغ 10 سيسي ويعطى 10 خلال 24 ساعة',
             14: 'يسحب ** مل وتضاف إلى ## سيسي كلوكوز وتر، تفرغ 10 سيسي وتعطى 10 خلال 30 دقيقة',
             15: 'يسحب ** وحدة انسولين وتضاف إلى ## سيسي كلوكوز وتر، تفرغ 10 سيسي وتعطى 10 خلال 30 دقيقة',
-            16: 'تسحب ** وحدة انسولين وتخفف الى 3 سيسي مع نورمال سلاين وتعطى خلال 5 دقائق'
-        };
+            16: 'تسحب ** وحدة انسولين وتخفف الى 3 سيسي مع نورمال سلاين وتعطى خلال 5 دقائق',
+                   17: 'تسحب ** مل وتخفف مع 3 مل كلوكوز وتر وتعطى خلال 5 دقائق',
+                 };
 
         let selectedDrugs = [];
         let patientInfo = null;
