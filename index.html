@@ -202,7 +202,7 @@
                     return 'تسحب ${Math.round(volMl * 100)} وحدة انسولين وتضاف إلى 20 سيسي كلوكوز وتر، تفرغ 10 سيسي ويعطى 10 خلال 24 ساعة`;
                 }
             },
-            {
+                        {
                 id: 11, name: 'Dexmedetomidine Load', dosePerKg: 0.1, unit: 'mcg', timeMultiplier: 1,
                 concentration: 2, lossType: null,
                 prep: 'تخفف 10 يونت من الامبولة الى 5 سيسي مع نورمال سلاين',
@@ -215,7 +215,7 @@
                 concentration: 1, lossType: null,
                 prep: 'تخفف 1 مل من الامبولة الى 5 سيسي نورمال سلاين',
                 getAdmin(volMl) {
-                    return 'تسحب ${Math.round(volMl * 100)} وحدة انسولين من المخفف وتضاف الى 3 مل NS وتعطى خلال 5 دقائق`;
+                    return `تسحب ${Math.round(volMl * 100)} وحدة انسولين من المخفف وتضاف الى 3 مل NS وتعطى خلال 5 دقائق`;
                 }
             },
             {
