@@ -199,10 +199,11 @@
                 concentration: 100, lossType: { bag: 20, give: 10 },
                 prep: 'تسحب الجرعة مباشرة من الامبولة',
                 getAdmin(volMl) {
-                    return 'تسحب ${Math.round(volMl * 100)} وحدة انسولين وتضاف إلى 20 سيسي كلوكوز وتر، تفرغ 10 سيسي ويعطى 10 خلال 24 ساعة`;
+                    // تم تصحيح علامات التنصيص هنا
+                    return `تسحب ${Math.round(volMl * 100)} وحدة انسولين وتضاف إلى 20 سيسي كلوكوز وتر، تفرغ 10 سيسي ويعطى 10 خلال 24 ساعة`;
                 }
             },
-                        {
+            {
                 id: 11, name: 'Dexmedetomidine Load', dosePerKg: 0.1, unit: 'mcg', timeMultiplier: 1,
                 concentration: 2, lossType: null,
                 prep: 'تخفف 10 يونت من الامبولة الى 5 سيسي مع نورمال سلاين',
@@ -326,7 +327,6 @@
                 
                 if (drug.isInfusion) {
                     const doses = [2, 5, 7, 10];
-                    // تم التعديل هنا: تغليف الرقم المحسوب بنفس ستايل الأرقام المميز
                     let rows = doses.map(ds => `<tr><td>${ds} mcg/kg/min</td><td><span class="font-bold text-sky-700">${Math.round(ds * w * 1.44)}</span> ml/24h</td></tr>`).join('');
                     calculatedResults.push({ name: drug.name, dose: "Table", unit: "" });
                     
