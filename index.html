@@ -262,6 +262,16 @@
                 getAdmin(volMl) {
                     return `تسحب ${Math.round(volMl * 100)} وحدة انسولين وتخفف الى 3 سيسي مع نورمال سلاين وتعطى خلال 5 دقائق`;
                 }
+            },
+            {
+                id: 18, name: 'Aminophylline (for HIE)', dosePerKg: 5, unit: 'mg', timeMultiplier: 1,
+                concentration: 25, 
+                lossType: { bag: 20, give: 10 },
+                prep: 'تسحب الجرعة مباشرة من الامبولة',
+                getAdmin(volMl, add, w) {
+                    if (w >= 2.5) return `يسحب ${smartFormat(volMl)} مل وتضاف إلى ${add} سيسي كلوكوز وتر، تفرغ 10 سيسي وتعطى 10 خلال 30 دقيقة`;
+                    return `يسحب ${Math.round(volMl * 100)} وحدة انسولين وتضاف إلى ${add} سيسي كلوكوز وتر، تفرغ 10 سيسي وتعطى 10 خلال 30 دقيقة`;
+                }
             }
         ];
 
