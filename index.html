@@ -127,9 +127,9 @@
             {
                 id: 17, name: 'Amikacin', dosePerKg: 15, unit: 'mg', timeMultiplier: 1,
                 concentration: 8, lossType: null,
-                prep: 'تسحب الجرعة مباشرة من الامبولة',
+                prep: 'تخفف الامبولة مع 60 سيسي نورمال سلاين',
                 getAdmin(volMl) {
-                    return `تسحب ${Math.round(volMl * 100)} وحدة انسولين وتخفف بـ 5 سيسي كلوكوز وتر ويعطى خلال 10 دقائق`;
+                    return `تسحب ${smartFormat(volMl)} سيسي وتخفف بـ 3 سيسي كلوكوز وتر ويعطى خلال 10 دقائق`;
                 }
             },
             {
