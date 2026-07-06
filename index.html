@@ -5,246 +5,381 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NICU Dose Calculator | Baghdad Hospital</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        * { font-family: system-ui, -apple-system, sans-serif; }
-        .screen-hidden { display: none !important; }
-        .screen-visible { display: block !important; }
-        
-        input {
-            border: 2px solid #e2e8f0 !important;
-            padding: 0.85rem !important;
-            border-radius: 1rem !important;
-            text-align: center;
-            width: 100%;
-            font-size: 1.1rem;
-            outline: none;
-            transition: border-color 0.2s;
+        :root {
+            --primary: #0f766e;
+            --primary-light: #14b8a6;
+            --primary-dark: #115e59;
+            --accent: #f59e0b;
+            --danger: #dc2626;
+            --bg: #f7f9f8;
+            --card: #ffffff;
+            --text: #1e293b;
+            --muted: #64748b;
+            --border: #e2e8f0;
         }
-        input:focus { border-color: #0d9488; }
-        input.sm-input { font-size: 0.95rem !important; padding: 0.6rem 0.8rem !important; }
-        input::placeholder { color: #6b7280; font-style: italic; font-weight: normal; }
+        * { font-family: 'Cairo', system-ui, sans-serif; box-sizing: border-box; }
+        body {
+            background: var(--bg);
+            background-image:
+                radial-gradient(ellipse at 15% 85%, rgba(15,118,110,0.04) 0%, transparent 55%),
+                radial-gradient(ellipse at 85% 15%, rgba(245,158,11,0.03) 0%, transparent 55%);
+        }
+
+        .screen { display: none; }
+        .screen.active { display: block; }
+
+        input[type="text"], input[type="number"] {
+            border: 2px solid var(--border);
+            padding: 0.85rem 1rem; border-radius: 1rem;
+            text-align: center; width: 100%; font-size: 1.1rem;
+            font-family: 'Cairo', sans-serif; outline: none;
+            transition: border-color 0.25s, box-shadow 0.25s;
+            background: white; color: var(--text);
+        }
+        input:focus { border-color: var(--primary-light); box-shadow: 0 0 0 3px rgba(20,184,166,0.12); }
+        input.sm-input { font-size: 0.95rem; padding: 0.6rem 0.8rem; }
+        input::placeholder { color: #94a3b8; font-weight: 400; }
+
+        select {
+            border: 2px solid var(--border);
+            padding: 0.6rem 0.8rem; border-radius: 0.75rem;
+            text-align: center; width: 100%; font-size: 0.95rem;
+            font-family: 'Cairo', sans-serif; outline: none;
+            transition: border-color 0.25s, box-shadow 0.25s;
+            background: white; color: var(--text); cursor: pointer;
+        }
+        select:focus { border-color: var(--primary-light); box-shadow: 0 0 0 3px rgba(20,184,166,0.12); }
 
         .section-title {
-            font-size: 1.15rem;
-            font-weight: 800;
-            color: #1e293b;
-            letter-spacing: -0.01em;
-            text-align: center;
-            margin-bottom: 1.25rem;
-            position: relative;
-            display: inline-block;
-            width: 100%;
+            font-size: 1.15rem; font-weight: 800; color: var(--text);
+            text-align: center; margin-bottom: 1.25rem;
+            display: inline-block; width: 100%;
         }
         .section-title::after {
-            content: '';
-            display: block;
-            width: 40px;
-            height: 4px;
-            background: #0d9488;
-            border-radius: 999px;
-            margin: 8px auto 0;
+            content: ''; display: block; width: 40px; height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+            border-radius: 999px; margin: 8px auto 0;
         }
 
         .placeholder-msg {
-            color: #6b7280;
-            font-style: italic;
-            font-weight: normal !important;
-            font-size: 0.85rem;
-            line-height: 1.6;
-            text-align: center;
-            padding: 4px 0;
-            user-select: none;
+            color: var(--muted); font-size: 0.85rem; line-height: 1.6;
+            text-align: center; padding: 4px 0; user-select: none;
         }
 
         .prep-box {
-            background-color: #fff7ed;
-            border-right: 4px solid #f97316;
-            padding: 12px;
-            margin: 10px 0;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            color: #7c2d12;
-            font-weight: 600;
+            background: linear-gradient(135deg, #fffbeb, #fff7ed);
+            border-right: 4px solid var(--accent);
+            padding: 14px 16px; margin: 12px 0;
+            border-radius: 0 12px 12px 0;
+            font-size: 0.9rem; color: #78350f;
+            font-weight: 600; line-height: 1.7;
         }
-
+        .admin-box {
+            background: linear-gradient(135deg, #f0fdfa, #ecfdf5);
+            border-right: 4px solid var(--primary-light);
+            padding: 14px 16px; margin-top: 12px;
+            border-radius: 0 12px 12px 0;
+            font-size: 0.9rem; color: #134e4a;
+            font-weight: 600; line-height: 1.7;
+        }
         .fluid-result-box {
-            background-color: #f0fdfa;
-            border-right: 4px solid #0d9488;
-            padding: 12px;
-            margin-top: 10px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            color: #134e4a;
-            font-weight: 600;
-            min-height: 40px;
+            background: linear-gradient(135deg, #f0fdfa, #ecfdf5);
+            border-right: 4px solid var(--primary-light);
+            padding: 12px 16px; margin-top: 10px;
+            border-radius: 0 12px 12px 0;
+            font-size: 0.9rem; color: #134e4a;
+            font-weight: 600; min-height: 40px;
+        }
+        .warning-box {
+            background: linear-gradient(135deg, #fef2f2, #fff1f2);
+            border-right: 4px solid var(--danger);
+            padding: 10px 14px; margin-top: 8px;
+            border-radius: 0 10px 10px 0;
+            font-size: 0.8rem; color: #991b1b;
+            font-weight: 700; line-height: 1.7;
         }
 
-        .warning-box {
-            background-color: #fef2f2;
-            border-right: 4px solid #dc2626;
-            padding: 10px 12px;
-            margin-top: 8px;
-            border-radius: 8px;
-            font-size: 0.8rem;
-            color: #991b1b;
-            font-weight: 700;
-            line-height: 1.6;
+        .info-row {
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 0.9rem; padding: 8px 12px;
+            background: white; border-radius: 10px; border: 1px solid var(--border);
         }
 
         .dopamine-table {
-            width: 100%;
-            margin-top: 10px;
-            border-collapse: collapse;
-            font-size: 0.85rem;
-            direction: ltr;
+            width: 100%; margin-top: 14px;
+            border-collapse: separate; border-spacing: 0;
+            font-size: 0.85rem; direction: ltr;
+            border-radius: 12px; overflow: hidden;
+            border: 1px solid var(--border);
         }
-        .dopamine-table th, .dopamine-table td {
-            border: 1px solid #e2e8f0;
-            padding: 10px;
-            text-align: center;
+        .dopamine-table th {
+            background: linear-gradient(135deg, #f0fdfa, #f8fafc);
+            color: var(--muted); font-weight: 700;
+            text-transform: uppercase; font-size: 0.7rem;
+            letter-spacing: 0.05em; padding: 10px;
+            border-bottom: 2px solid var(--border);
         }
-        .dopamine-table th { background: #f8fafc; color: #475569; }
+        .dopamine-table td {
+            padding: 12px 10px; text-align: center;
+            border-bottom: 1px solid #f1f5f9; background: white;
+        }
+        .dopamine-table tr:last-child td { border-bottom: none; }
+        .dopamine-table tr:hover td { background: #f8fafc; }
 
-        .toast { animation: slideIn 0.3s ease-out, fadeOut 0.3s ease-in 2.7s forwards; }
-        @keyframes slideIn { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+        .drug-card {
+            padding: 14px 16px; border-radius: 16px;
+            border: 2px solid var(--border); text-align: left;
+            transition: all 0.2s ease; cursor: pointer;
+            background: white; position: relative; overflow: hidden;
+        }
+        .drug-card::before {
+            content: ''; position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            opacity: 0; transition: opacity 0.2s ease;
+        }
+        .drug-card:hover {
+            border-color: #cbd5e1; transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        }
+        .drug-card.selected {
+            border-color: var(--primary);
+            box-shadow: 0 4px 16px rgba(15,118,110,0.2);
+        }
+        .drug-card.selected::before { opacity: 1; }
+        .drug-card > * { position: relative; z-index: 1; }
+        .drug-card.selected .drug-name,
+        .drug-card.selected .drug-dose { color: white !important; }
+
+        .result-card {
+            background: white; border-radius: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.03);
+            border: 1px solid var(--border); overflow: hidden;
+        }
+        .result-card-header {
+            padding: 20px 24px 16px;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .result-card-body { padding: 0 24px 24px; }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            color: white; padding: 1rem; border-radius: 1rem;
+            font-weight: 700; font-size: 1.05rem; width: 100%;
+            border: none; cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(15,118,110,0.3);
+            font-family: 'Cairo', sans-serif;
+        }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(15,118,110,0.35); }
+        .btn-primary:active { transform: scale(0.98); }
+        .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        .btn-secondary {
+            background: white; color: var(--muted);
+            padding: 0.85rem; border-radius: 0.85rem;
+            font-weight: 600; font-size: 0.95rem; width: 100%;
+            border: 2px solid var(--border); cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Cairo', sans-serif;
+        }
+        .btn-secondary:active { transform: scale(0.98); background: #f8fafc; }
+
+        .btn-telegram {
+            background: linear-gradient(135deg, #1d4ed8, #2563eb);
+            color: white; padding: 1rem; border-radius: 1rem;
+            font-weight: 700; font-size: 1.05rem; width: 100%;
+            border: none; cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(37,99,235,0.3);
+            font-family: 'Cairo', sans-serif;
+        }
+        .btn-telegram:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(37,99,235,0.35); }
+        .btn-telegram:active { transform: scale(0.98); }
+
+        .search-input {
+            border: 2px solid var(--border);
+            padding: 0.75rem 1rem 0.75rem 2.75rem;
+            border-radius: 1rem; width: 100%;
+            font-size: 1rem; font-family: 'Cairo', sans-serif;
+            outline: none; transition: border-color 0.25s, box-shadow 0.25s;
+            background: white; color: var(--text);
+        }
+        .search-input:focus { border-color: var(--primary-light); box-shadow: 0 0 0 3px rgba(20,184,166,0.12); }
+
+        .badge {
+            display: inline-flex; align-items: center; justify-content: center;
+            min-width: 26px; height: 26px; border-radius: 999px;
+            font-size: 0.75rem; font-weight: 800; padding: 0 8px;
+        }
+
+        .header-gradient {
+            background: linear-gradient(135deg, #115e59, #0f766e, #0d9488);
+        }
+
+        .toast {
+            animation: toastIn 0.4s cubic-bezier(0.16,1,0.3,1), toastOut 0.3s ease-in 2.7s forwards;
+        }
+        @keyframes toastIn { from { transform: translateY(-100%) scale(0.9); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
+        @keyframes toastOut { from { opacity: 1; } to { opacity: 0; transform: translateY(-20px); } }
+
+        .no-results {
+            text-align: center; padding: 40px 20px;
+            color: var(--muted); font-size: 0.95rem;
+        }
+
+        .num-hl { color: var(--primary-light); font-weight: 800; }
+        .box-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; display: block; font-weight: 700; }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+        }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen flex flex-col">
+<body class="min-h-screen flex flex-col">
 
     <div id="toastContainer" class="fixed top-4 left-0 right-0 z-50 flex justify-center pointer-events-none">
-        <div id="successToast" class="toast bg-emerald-600 text-white px-6 py-3 rounded-full shadow-lg hidden pointer-events-auto">
-            ✅ تم إبلاغ الصيدلية بنجاح!
+        <div id="successToast" class="toast bg-emerald-600 text-white px-6 py-3 rounded-full shadow-xl hidden pointer-events-auto text-sm font-bold">
+            تم إبلاغ الصيدلية بنجاح
         </div>
     </div>
 
-    <header class="bg-sky-600 text-white p-5 shadow-lg sticky top-0 z-40">
+    <header class="header-gradient text-white p-4 shadow-lg sticky top-0 z-40">
         <div class="flex items-center justify-between max-w-4xl mx-auto">
-            <button id="backBtn" class="bg-white/20 p-2 rounded-xl hidden"> 🔙 </button>
+            <button id="backBtn" class="bg-white/15 hover:bg-white/25 p-2.5 rounded-xl transition-all hidden backdrop-blur-sm" aria-label="رجوع">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+            </button>
             <div class="flex-1 text-center">
-                <h1 class="text-xl font-bold">حاسبة جرعات الخدج</h1>
-                <p class="text-[10px] text-sky-100 uppercase tracking-widest">Baghdad Teaching Hospital</p>
+                <h1 class="text-lg font-black tracking-tight">حاسبة جرعات الخدج</h1>
+                <p class="text-[9px] text-teal-200/70 uppercase tracking-[0.2em] mt-0.5">Baghdad Teaching Hospital — NICU</p>
             </div>
+            <div id="headerSpacer" class="w-10"></div>
         </div>
     </header>
 
-    <main class="flex-1 p-4">
-        <div id="greetingScreen" class="screen-visible max-w-2xl mx-auto">
-            
-            <div class="bg-white p-8 rounded-3xl shadow-xl mt-6 border border-sky-100">
-                <h2 class="section-title">معلومات المريض</h2>
-                <div class="space-y-5">
-                    <div>
-                        <label class="block text-sm font-medium text-slate-500 mb-1">اسم الطفل</label>
-                        <input id="babyName" type="text" placeholder="أدخل اسم الطفل">
+    <main class="flex-1 p-4 pb-32">
+
+        <div id="greetingScreen" class="screen active max-w-2xl mx-auto">
+
+            <div class="result-card mt-5">
+                <div class="result-card-body" style="padding-top:24px;">
+                    <h2 class="section-title">معلومات المريض</h2>
+                    <div class="space-y-5">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-500 mb-1.5">اسم الطفل</label>
+                            <input id="babyName" type="text" placeholder="أدخل اسم الطفل">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-500 mb-1.5">الوزن (كجم)</label>
+                            <input id="babyWeight" type="text" placeholder="مثال: 1.5" inputmode="decimal">
+                        </div>
+                        <div id="errorMessage" class="text-red-600 text-sm font-bold text-center hidden bg-red-50 p-3 rounded-xl border border-red-100"></div>
+                        <button id="selectTreatmentBtn" class="btn-primary">
+                            اختيار العلاج
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-1 rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+                        </button>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-slate-500 mb-1">الوزن (كجم)</label>
-                        <input id="babyWeight" type="text" placeholder="مثال: ١.٥ أو 1.5" inputmode="decimal">
-                    </div>
-                    <div id="errorMessage" class="text-red-500 text-sm font-bold text-center hidden bg-red-50 p-2 rounded-lg"></div>
-                    <button id="selectTreatmentBtn" class="w-full bg-sky-600 text-white py-4 rounded-2xl font-bold shadow-lg active:scale-95 transition-all">
-                        اختيار العلاج ←
-                    </button>
                 </div>
             </div>
 
-            <div class="bg-white p-6 rounded-3xl shadow-xl mt-6 border border-teal-100">
-                <h2 class="section-title">حاسبة السوائل الوريدية</h2>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- القسم الأول -->
-                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
-                        <h3 class="text-sm font-bold text-slate-600 mb-3 text-center">1. Fluid Preparation</h3>
-                        <div class="space-y-3">
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-500 mb-1">نوع السائل</label>
-                                <select id="fluidType" class="w-full border-2 border-slate-200 p-2.5 rounded-xl text-sm font-semibold text-slate-700 bg-white focus:border-teal-500 outline-none" onchange="calculateFluidPrep()">
-                                    <option value="1/5 GS">1/5 GS</option>
-                                    <option value="10% GW">10% GW</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-500 mb-1">الحجم الكلي (مل)</label>
-                                <input id="totalFluidVol" type="number" class="sm-input" placeholder="مثال: 120" oninput="calculateFluidPrep()">
-                            </div>
-                            <div id="fluidPrepResult" class="fluid-result-box text-center text-sm">
-                                <div class="placeholder-msg">أدخل الحجم لعرض طريقة التحضير</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- القسم الثاني -->
-                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
-                        <h3 class="text-sm font-bold text-slate-600 mb-3 text-center">2. Calculate from GIR</h3>
-                        <div class="space-y-3">
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-500 mb-1">الوزن (كجم)</label>
-                                <input id="girWeight" type="number" step="0.1" class="sm-input" placeholder="مثال: 1.5" oninput="calculateGIR()">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-500 mb-1">معدل GIR (ملغم/كجم/دقيقة)</label>
-                                <input id="girRate" type="number" step="0.1" class="sm-input" placeholder="مثال: 6" oninput="calculateGIR()">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-500 mb-1">حجم الكيس (مل)</label>
-                                <input id="girBagVol" type="number" class="sm-input" placeholder="مثال: 120" oninput="calculateGIR()">
-                            </div>
-                            
-                            <div id="girResults" class="mt-4 space-y-2">
-                                <div id="girPlaceholder">
-                                    <div class="placeholder-msg">أدخل المعلومات لعرض طريقة التحضير</div>
+            <div class="result-card mt-6">
+                <div class="result-card-body" style="padding-top:24px;">
+                    <h2 class="section-title">حاسبة السوائل الوريدية</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="bg-slate-50/80 p-4 rounded-2xl border border-slate-200/80">
+                            <h3 class="text-sm font-bold text-slate-600 mb-3 text-center">تحضير السائل</h3>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-500 mb-1">نوع السائل</label>
+                                    <select id="fluidType" onchange="calculateFluidPrep()">
+                                        <option value="1/5 GS">1/5 GS</option>
+                                        <option value="10% GW">10% GW</option>
+                                    </select>
                                 </div>
-                                
-                                <div id="girActualResults" class="hidden space-y-2">
-                                    <div class="flex justify-between text-sm bg-white p-2 rounded-lg border">
-                                        <span class="text-slate-500">5% GW:</span>
-                                        <span id="resGW" class="font-bold text-slate-800">0 مل</span>
-                                    </div>
-                                    <div class="flex justify-between text-sm bg-white p-2 rounded-lg border">
-                                        <span class="text-slate-500">50% HT:</span>
-                                        <span id="resHT" class="font-bold text-slate-800">0 مل</span>
-                                    </div>
-                                    <div class="flex justify-between text-sm bg-white p-2 rounded-lg border">
-                                        <span class="text-slate-500">التركيز:</span>
-                                        <span id="resConc" class="font-bold text-slate-800">0 %</span>
-                                    </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-500 mb-1">الحجم الكلي (مل)</label>
+                                    <input id="totalFluidVol" type="number" class="sm-input" placeholder="مثال: 120" oninput="calculateFluidPrep()">
+                                </div>
+                                <div id="fluidPrepResult" class="fluid-result-box text-center text-sm">
+                                    <div class="placeholder-msg">أدخل الحجم لعرض طريقة التحضير</div>
                                 </div>
                             </div>
                         </div>
 
-                            <div id="girWarnings"></div>
+                        <div class="bg-slate-50/80 p-4 rounded-2xl border border-slate-200/80">
+                            <h3 class="text-sm font-bold text-slate-600 mb-3 text-center">حساب من GIR</h3>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-500 mb-1">الوزن (كجم)</label>
+                                    <input id="girWeight" type="number" step="0.1" class="sm-input" placeholder="مثال: 1.5" oninput="calculateGIR()">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-500 mb-1">معدل GIR (ملغم/كغم/دقيقة)</label>
+                                    <input id="girRate" type="number" step="0.1" class="sm-input" placeholder="مثال: 6" oninput="calculateGIR()">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-500 mb-1">حجم الكيس (مل)</label>
+                                    <input id="girBagVol" type="number" class="sm-input" placeholder="مثال: 120" oninput="calculateGIR()">
+                                </div>
+                                <div id="girResults" class="mt-2 space-y-2">
+                                    <div id="girPlaceholder">
+                                        <div class="placeholder-msg">أدخل المعلومات لعرض طريقة التحضير</div>
+                                    </div>
+                                    <div id="girActualResults" class="hidden space-y-2">
+                                        <div class="info-row">
+                                            <span class="text-slate-500 text-sm">5% GW</span>
+                                            <span id="resGW" class="font-bold text-slate-800">0 مل</span>
+                                        </div>
+                                        <div class="info-row">
+                                            <span class="text-slate-500 text-sm">50% HT</span>
+                                            <span id="resHT" class="font-bold text-slate-800">0 مل</span>
+                                        </div>
+                                        <div class="info-row">
+                                            <span class="text-slate-500 text-sm">التركيز</span>
+                                            <span id="resConc" class="font-bold text-slate-800">0 %</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="girWarnings"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="h-10"></div>
         </div>
 
-        <div id="drugSelectionScreen" class="screen-hidden max-w-4xl mx-auto">
-            <h2 class="text-lg font-bold text-slate-700 mb-4 text-center">اختر الأدوية (A-Z)</h2>
-            <div id="drugGrid" dir="ltr" class="grid grid-cols-2 sm:grid-cols-3 gap-3 pb-40"></div>
+        <div id="drugSelectionScreen" class="screen max-w-4xl mx-auto">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-bold text-slate-700">اختر الأدوية</h2>
+                <div id="selectedCount" class="badge bg-teal-100 text-teal-800 hidden">0</div>
+            </div>
+            <div class="relative mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                <input id="drugSearch" type="text" class="search-input" placeholder="ابحث عن دواء..." oninput="filterDrugs()">
+            </div>
+            <div id="drugGrid" dir="ltr" class="grid grid-cols-2 sm:grid-cols-3 gap-3 pb-8"></div>
+            <div id="noResults" class="no-results hidden">لا توجد نتائج مطابقة</div>
         </div>
 
-        <div id="resultsScreen" class="screen-hidden max-w-2xl mx-auto">
-            <div id="resultsGrid" class="space-y-4 pb-80"></div>
+        <div id="resultsScreen" class="screen max-w-2xl mx-auto">
+            <div id="resultsGrid" class="space-y-4 pb-8"></div>
         </div>
     </main>
 
-    <div id="calculateBtnContainer" class="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md border-t p-4 hidden z-50">
-        <button id="calculateBtn" class="w-full max-w-4xl mx-auto block bg-sky-600 text-white py-4 rounded-2xl font-bold shadow-lg disabled:opacity-50">
+    <div id="calculateBtnContainer" class="fixed bottom-0 left-0 right-0 bg-white/85 backdrop-blur-xl border-t border-slate-200/60 p-4 hidden z-50">
+        <button id="calculateBtn" class="btn-primary max-w-4xl mx-auto block" disabled>
             حساب النتائج وإرسال للبوت
         </button>
     </div>
 
-    <div id="resultsFooter" class="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-lg border-t p-4 hidden z-50">
+    <div id="resultsFooter" class="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-slate-200/60 p-4 hidden z-50">
         <div class="max-w-md mx-auto space-y-3">
-            <button id="sendToTelegramBtn" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-lg active:scale-95 transition-all">
-                🚀 تبليغ الصيادلة بالإعطاء
-            </button>
-            <button id="startOverBtn" class="w-full bg-slate-100 text-slate-700 py-3 rounded-xl font-semibold border active:scale-95"> 
-                🔄 مريض جديد 
-            </button>
+            <button id="sendToTelegramBtn" class="btn-telegram">تبليغ الصيادلة بالإعطاء</button>
+            <button id="startOverBtn" class="btn-secondary">مريض جديد</button>
         </div>
     </div>
 
@@ -274,7 +409,7 @@
                 }
             },
             {
-                id: 3, name: 'Caffeine Loading', dosePerKg: 20, unit: 'mg', timeMultiplier: 1, concentration: 20, 
+                id: 3, name: 'Caffeine Loading', dosePerKg: 20, unit: 'mg', timeMultiplier: 1, concentration: 20,
                 lossType: (w) => w < 1 ? { bag: 15, give: 5 } : { bag: 20, give: 10 },
                 prep: 'تسحب الجرعة مباشرة من الامبولة',
                 getAdmin(volMl, add, w) {
@@ -307,7 +442,7 @@
             },
             {
                 id: 7, name: 'Tigecycline', dosePerKg: 2, unit: 'mg', timeMultiplier: 1,
-                concentration: 2, 
+                concentration: 2,
                 lossType: (w) => w < 1 ? { bag: 15, give: 5 } : { bag: 20, give: 10 },
                 prep: 'تحل الفيالة بقوة 50mg ب 5.3 سيسي كلوكوز وتر ، ويسحب 5 سيسي فقط من الفيالة وتضاف الى 20 سيسي كلوكوز وتر',
                 getAdmin(volMl, add, w) {
@@ -317,7 +452,7 @@
             },
             {
                 id: 8, name: 'Meropenem', dosePerKg: 40, unit: 'mg', timeMultiplier: 1,
-                concentration: 50, 
+                concentration: 50,
                 lossType: (w) => w < 1 ? { bag: 15, give: 5 } : { bag: 20, give: 10 },
                 prep: 'تحل الفيالة بقوة 1gm ب20 سيسي نورمال سلاين، وبقوة 500mg ب10 سيسي نورمال سلاين',
                 getAdmin(volMl, add, w) {
@@ -367,7 +502,7 @@
             },
             {
                 id: 14, name: 'Phenobarbital Load', dosePerKg: 20, unit: 'mg', timeMultiplier: 1,
-                concentration: 10, 
+                concentration: 10,
                 lossType: (w) => w < 1 ? { bag: 15, give: 5 } : { bag: 20, give: 10 },
                 prep: 'تخفف الامبولة بـ 20 سيسي نورمال سلاين',
                 getAdmin(volMl, add, w) {
@@ -377,7 +512,7 @@
             },
             {
                 id: 15, name: 'Phenobarbital Maint.', dosePerKg: 2.5, unit: 'mg', timeMultiplier: 1,
-                concentration: 10, 
+                concentration: 10,
                 lossType: (w) => w < 1 ? { bag: 15, give: 5 } : { bag: 20, give: 10 },
                 prep: 'تخفف الامبولة بـ 20 سيسي نورمال سلاين',
                 getAdmin(volMl, add, w) {
@@ -410,16 +545,20 @@
         let calculatedResults = [];
 
         function cleanWeightInput(val) {
-            if(!val) return "";
+            if (!val) return "";
             return val.toString()
-                .replace(/[٠-٩]/g, d => '0123456789'['٠١٢٣٤٥٦٧٨٩'.indexOf(d)]) 
-                .replace(/[،,]/g, '.') 
-                .replace(/[^\d.]/g, ''); 
+                .replace(/[٠-٩]/g, d => '0123456789'['٠١٢٣٤٥٦٧٨٩'.indexOf(d)])
+                .replace(/[،,]/g, '.')
+                .replace(/[^\d.]/g, '');
         }
 
-        function smartFormat(num) { 
-            let v = Math.round(num * 10) / 10; 
-            return Number.isInteger(v) ? v.toString() : v.toFixed(1); 
+        function smartFormat(num) {
+            let v = Math.round(num * 10) / 10;
+            return Number.isInteger(v) ? v.toString() : v.toFixed(1);
+        }
+
+        function highlightNums(text) {
+            return text.replace(/(\d+\.?\d*)/g, '<span class="num-hl">$1</span>');
         }
 
         function calculateFluidPrep() {
@@ -435,7 +574,7 @@
             let calcFluid = totalFluid, suffix = "";
             if (totalFluid > 160) {
                 calcFluid = totalFluid / 2;
-                suffix = " <span style='color:#0d9488;font-weight:800'>X2</span>";
+                suffix = ' <span style="color:var(--primary-light);font-weight:800">×2</span>';
             }
 
             let prep = "";
@@ -444,7 +583,6 @@
             } else if (fluidType === '10% GW') {
                 prep = `(5% GW <span class="font-bold text-teal-700">${Math.round(calcFluid * 0.9)}</span> مل + <span class="font-bold text-teal-700">${Math.round(calcFluid * 0.1)}</span> مل HT)${suffix}`;
             }
-            
             resultDiv.innerHTML = prep;
         }
 
@@ -452,7 +590,7 @@
             const w = parseFloat(document.getElementById('girWeight').value) || 0;
             const gir = parseFloat(document.getElementById('girRate').value) || 0;
             const vol = parseFloat(document.getElementById('girBagVol').value) || 0;
-            
+
             const placeholder = document.getElementById('girPlaceholder');
             const actualRes = document.getElementById('girActualResults');
             const warnBox = document.getElementById('girWarnings');
@@ -466,7 +604,7 @@
 
             placeholder.classList.add('hidden');
             actualRes.classList.remove('hidden');
-            
+
             let warnings = [];
             const totalGlucose = w * gir * 1440;
             let ht = Math.round(((totalGlucose / 50) - vol) / 9);
@@ -475,13 +613,13 @@
 
             if (ht < 0) {
                 ht = 0; gw = vol;
-                warnings.push("⚠️ تنبيه: الـ 5% GW وحده يوفر تركيزاً أعلى من GIR المطلوب. لا داعي لإضافة 50% HT.");
+                warnings.push("تنبيه: الـ 5% GW وحده يوفر تركيزاً أعلى من GIR المطلوب. لا داعي لإضافة 50% HT.");
             } else if (ht > vol) {
-                warnings.push("❌ خطأ: الحجم الكلي غير كافٍ لتحضير هذا الـ GIR. قم بزيادة الحجم أو تقليل GIR.");
+                warnings.push("خطأ: الحجم الكلي غير كافٍ لتحضير هذا الـ GIR. قم بزيادة الحجم أو تقليل GIR.");
             }
-            
+
             if (conc > 12.5) {
-                warnings.push("🔴 تحذير: التركيز النهائي أعلى من 12.5% - يجب الإعطاء حصرياً عبر القسطرة السرية (Umbilical Catheter).");
+                warnings.push("تحذير: التركيز النهائي أعلى من 12.5% — يجب الإعطاء حصرياً عبر القسطرة السرية (Umbilical Catheter).");
             }
 
             document.getElementById('resGW').innerText = `${Math.round(gw)} مل`;
@@ -497,29 +635,76 @@
         }
 
         function showScreen(screen) {
-            document.getElementById('greetingScreen').className = screen === 'greeting' ? 'screen-visible max-w-2xl mx-auto' : 'screen-hidden';
-            document.getElementById('drugSelectionScreen').className = screen === 'drugSelection' ? 'screen-visible max-w-4xl mx-auto' : 'screen-hidden';
-            document.getElementById('resultsScreen').className = screen === 'results' ? 'screen-visible max-w-2xl mx-auto' : 'screen-hidden';
+            const screens = {
+                greeting: document.getElementById('greetingScreen'),
+                drugSelection: document.getElementById('drugSelectionScreen'),
+                results: document.getElementById('resultsScreen')
+            };
+
+            Object.values(screens).forEach(s => {
+                s.classList.remove('active');
+                s.style.opacity = '0';
+                s.style.transform = 'translateY(10px)';
+            });
+
+            const target = screens[screen];
+            target.classList.add('active');
+            requestAnimationFrame(() => {
+                target.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                target.style.opacity = '1';
+                target.style.transform = 'translateY(0)';
+            });
+
             document.getElementById('calculateBtnContainer').classList.toggle('hidden', screen !== 'drugSelection');
             document.getElementById('resultsFooter').classList.toggle('hidden', screen !== 'results');
             document.getElementById('backBtn').classList.toggle('hidden', screen === 'greeting');
-            window.scrollTo(0,0);
+            document.getElementById('headerSpacer').classList.toggle('hidden', screen !== 'greeting');
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         window.toggleDrug = function(id) {
-            selectedDrugs = selectedDrugs.includes(id) ? selectedDrugs.filter(x => x !== id) : [...selectedDrugs, id];
+            selectedDrugs = selectedDrugs.includes(id)
+                ? selectedDrugs.filter(x => x !== id)
+                : [...selectedDrugs, id];
+            renderDrugGrid();
+        };
+
+        window.filterDrugs = function() {
             renderDrugGrid();
         };
 
         function renderDrugGrid() {
             const grid = document.getElementById('drugGrid');
-            grid.innerHTML = DRUGS.map(d => {
-                const isSel = selectedDrugs.includes(d.id);
-                return `<div onclick="toggleDrug(${d.id})" class="p-4 rounded-2xl border-2 text-left transition-all cursor-pointer ${isSel ? 'bg-sky-600 border-sky-700 text-white shadow-md' : 'bg-white border-slate-100 text-slate-700 shadow-sm'}">
-                    <div class="font-bold text-sm">${d.name}</div>
-                    <div class="text-[10px] opacity-60">${d.dosePerKg} ${d.unit}/kg</div>
-                </div>`;
-            }).join('');
+            const noRes = document.getElementById('noResults');
+            const query = (document.getElementById('drugSearch').value || '').toLowerCase().trim();
+
+            const filtered = query
+                ? DRUGS.filter(d => d.name.toLowerCase().includes(query))
+                : DRUGS;
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '';
+                noRes.classList.remove('hidden');
+            } else {
+                noRes.classList.add('hidden');
+                grid.innerHTML = filtered.map(d => {
+                    const isSel = selectedDrugs.includes(d.id);
+                    return `<div onclick="toggleDrug(${d.id})" class="drug-card ${isSel ? 'selected' : ''}" role="button" tabindex="0" aria-pressed="${isSel}">
+                        <div class="drug-name font-bold text-sm text-slate-800">${d.name}</div>
+                        <div class="drug-dose text-[10px] text-slate-400 mt-0.5">${d.dosePerKg} ${d.unit}/kg</div>
+                    </div>`;
+                }).join('');
+            }
+
+            const countBadge = document.getElementById('selectedCount');
+            if (selectedDrugs.length > 0) {
+                countBadge.classList.remove('hidden');
+                countBadge.textContent = selectedDrugs.length;
+            } else {
+                countBadge.classList.add('hidden');
+            }
+
             document.getElementById('calculateBtn').disabled = selectedDrugs.length === 0;
         }
 
@@ -528,27 +713,53 @@
             let weight = parseFloat(processedWeight);
             if (isNaN(weight) || weight < 0.4 || weight > 5) {
                 const err = document.getElementById('errorMessage');
-                err.innerText = "أدخل وزن صحيح (0.4 - 5 كغم)";
+                err.innerText = "أدخل وزن صحيح (0.4 — 5 كغم)";
                 err.classList.remove('hidden');
                 return;
             }
             patientInfo = { name: document.getElementById('babyName').value || 'مجهول', weight };
+            document.getElementById('drugSearch').value = '';
             renderDrugGrid();
             showScreen('drugSelection');
         };
 
         document.getElementById('calculateBtn').onclick = () => {
+            const w = patientInfo.weight;
             const grid = document.getElementById('resultsGrid');
             calculatedResults = [];
+
             grid.innerHTML = selectedDrugs.map((id, idx) => {
                 const drug = DRUGS.find(d => d.id === id);
-                const w = patientInfo.weight;
+
                 if (drug.isInfusion) {
                     const doses = [2, 5, 7, 10];
-                    let rows = doses.map(ds => `<tr><td>${ds} mcg/kg/min</td><td><span class="font-bold text-sky-700">${Math.round(ds * w * 1.44)}</span> ml/24h</td></tr>`).join('');
-                    calculatedResults.push({ name: drug.name, dose: "Table", unit: "" });
-                    return `<div class="bg-white p-6 rounded-3xl shadow-sm border border border-slate-100" dir="rtl"><div dir="ltr" class="flex justify-between items-center mb-4 border-b pb-2"><h3 class="font-bold text-sky-900 text-lg">${idx+1}. ${drug.name}</h3><span class="text-slate-400 text-xs font-bold uppercase">Infusion</span></div><div class="prep-box text-right"><span class="text-[10px] text-orange-400 block mb-1">طريقة التحضير</span>${drug.prep}</div><div class="text-slate-600 text-sm text-right leading-relaxed mt-3"><span class="text-[10px] text-sky-400 block mb-1 uppercase">طريقة الإعطاء</span>${drug.getAdmin()}</div><table class="dopamine-table mt-2">${rows}</table></div></div>`;
+                    let rows = doses.map(ds => {
+                        const rate = Math.round(ds * w * 1.44);
+                        return `<tr>
+                            <td>${ds} mcg/kg/min</td>
+                            <td><span class="font-bold text-teal-700">${rate}</span> ml/24h</td>
+                        </tr>`;
+                    }).join('');
+                    calculatedResults.push({ name: drug.name, dose: "جدول", unit: "" });
+                    return `<div class="result-card" dir="rtl">
+                        <div class="result-card-header" dir="ltr">
+                            <h3 class="font-bold text-teal-900 text-lg">${idx + 1}. ${drug.name}</h3>
+                            <span class="text-xs font-bold uppercase tracking-wider text-slate-400 bg-slate-100 px-3 py-1 rounded-full">Infusion</span>
+                        </div>
+                        <div class="result-card-body" dir="rtl">
+                            <div class="prep-box">
+                                <span class="box-label text-amber-500">طريقة التحضير</span>
+                                ${drug.prep}
+                            </div>
+                            <div class="admin-box">
+                                <span class="box-label text-teal-500">طريقة الإعطاء</span>
+                                ${drug.getAdmin()}
+                            </div>
+                            <table class="dopamine-table">${rows}</table>
+                        </div>
+                    </div>`;
                 }
+
                 let totalDose = w * drug.dosePerKg * (drug.timeMultiplier || 1);
                 let baseVolMl = totalDose / drug.concentration;
                 let finalVolMl = baseVolMl, addVolume = 0;
@@ -560,31 +771,73 @@
                     if (addVolume < 0) addVolume = 0;
                 }
                 let adminText = drug.getAdmin(finalVolMl, Math.round(addVolume), w);
-                let highlightedAdmin = adminText.replace(/(\d+\.?\d*)/g, '<span class="font-bold text-sky-700">$1</span>');
+                let highlightedAdmin = highlightNums(adminText);
                 calculatedResults.push({ name: drug.name, dose: smartFormat(totalDose), unit: drug.unit });
-                return `<div class="bg-white p-6 rounded-3xl shadow-sm border border border-slate-100" dir="rtl"><div dir="ltr" class="flex justify-between items-center mb-4 border-b pb-2"><h3 class="font-bold text-sky-900 text-lg">${idx+1}. ${drug.name}</h3><div class="text-right"><span class="text-sky-600 font-black text-xl">${smartFormat(totalDose)}</span><span class="text-slate-400 text-xs ml-1">${drug.unit}</span></div></div></div><div class="prep-box text-right"><span class="text-sm text-orange-400 block mb-1">طريقة التحضير</span>${drug.prep}</div><div class="text-slate-600 text-sm text-right leading-relaxed mt-3"><span class="text-sm text-sky-400 block mb-1 uppercase">طريقة الإعطاء</span>${highlightedAdmin}</div></div></div>`;
+
+                return `<div class="result-card" dir="rtl">
+                    <div class="result-card-header" dir="ltr">
+                        <h3 class="font-bold text-teal-900 text-lg">${idx + 1}. ${drug.name}</h3>
+                        <div>
+                            <span class="text-teal-600 font-black text-xl">${smartFormat(totalDose)}</span>
+                            <span class="text-slate-400 text-xs mr-1">${drug.unit}</span>
+                        </div>
+                    </div>
+                    <div class="result-card-body" dir="rtl">
+                        <div class="prep-box">
+                            <span class="box-label text-amber-500">طريقة التحضير</span>
+                            ${drug.prep}
+                        </div>
+                        <div class="admin-box">
+                            <span class="box-label text-teal-500">طريقة الإعطاء</span>
+                            ${highlightedAdmin}
+                        </div>
+                    </div>
+                </div>`;
             }).join('');
+
             showScreen('results');
             sendTelegram(true);
         };
 
-        async function sendTelegram(isAuto = false) {
-            const workerUrl = 'https://nicu-proxy.hasanainghassan98.workers.dev'; 
-            let msg = isAuto ? `🔔 *حساب جرعة جديدة*\n` : `🚀 *طلب إعطاء علاج*\n`;
-            msg += `👶 المريض: ${patientInfo.name} (${smartFormat(patientInfo.weight)}kg)\n\n`;
-            calculatedResults.forEach((r, i) => msg += `${i+1}. *${r.name}*: ${r.dose} ${r.unit}\n`);
+        async function sendTelegram(isAuto) {
+            const workerUrl = 'https://nicu-proxy.hasanainghassan98.workers.dev';
+            let msg = isAuto ? 'حساب جرعة جديدة\n' : 'طلب إعطاء علاج\n';
+            msg += `المريض: ${patientInfo.name} (${smartFormat(patientInfo.weight)}kg)\n\n`;
+            calculatedResults.forEach((r, i) => msg += `${i + 1}. ${r.name}: ${r.dose} ${r.unit}\n`);
             try {
-                const res = await fetch(workerUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: msg }) });
-                if(!isAuto && res.ok) { document.getElementById('successToast').classList.remove('hidden'); setTimeout(() => document.getElementById('successToast').classList.add('hidden'), 3000); }
-            } catch (e) { console.error("Error sending to Worker:", e); }
+                const res = await fetch(workerUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: msg })
+                });
+                if (!isAuto && res.ok) {
+                    const toast = document.getElementById('successToast');
+                    toast.classList.remove('hidden');
+                    setTimeout(() => toast.classList.add('hidden'), 3000);
+                }
+            } catch (e) {
+                console.error("Worker error:", e);
+            }
         }
 
         document.getElementById('backBtn').onclick = () => {
-            if (!document.getElementById('resultsScreen').classList.contains('screen-hidden')) showScreen('drugSelection');
-            else showScreen('greeting');
+            if (!document.getElementById('resultsScreen').classList.contains('active')) {
+                showScreen('greeting');
+            } else {
+                renderDrugGrid();
+                showScreen('drugSelection');
+            }
         };
+
         document.getElementById('startOverBtn').onclick = () => location.reload();
         document.getElementById('sendToTelegramBtn').onclick = () => sendTelegram(false);
+
+        document.getElementById('drugGrid').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                const card = e.target.closest('.drug-card');
+                if (card) { e.preventDefault(); card.click(); }
+            }
+        });
     </script>
 </body>
 </html>
