@@ -125,6 +125,14 @@
                 }
             },
             {
+                id: 17, name: 'Amikacin', dosePerKg: 15, unit: 'mg', timeMultiplier: 1,
+                concentration: 8, lossType: null,
+                prep: 'تسحب الجرعة مباشرة من الامبولة',
+                getAdmin(volMl) {
+                    return `تسحب ${Math.round(volMl * 100)} وحدة انسولين وتخفف بـ 5 سيسي كلوكوز وتر ويعطى خلال 10 دقائق`;
+                }
+            },
+            {
                 id: 2, name: 'Gentamicin', dosePerKg: 5, unit: 'mg', timeMultiplier: 1,
                 concentration: 40, lossType: null,
                 prep: 'تسحب الجرعة مباشرة من الامبولة',
@@ -199,7 +207,6 @@
                 concentration: 100, lossType: { bag: 20, give: 10 },
                 prep: 'تسحب الجرعة مباشرة من الامبولة',
                 getAdmin(volMl) {
-                    // تم تصحيح علامات التنصيص هنا
                     return `تسحب ${Math.round(volMl * 100)} وحدة انسولين وتضاف إلى 20 سيسي كلوكوز وتر، تفرغ 10 سيسي ويعطى 10 خلال 24 ساعة`;
                 }
             },
