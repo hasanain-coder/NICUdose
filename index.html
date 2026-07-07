@@ -3,647 +3,852 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NICU Dose Calculator | حاسبة الجرعات</title>
+    <title>NICU Dose Calculator | Baghdad Hospital</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        * { font-family: system-ui, -apple-system, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; }
-        .screen-hidden { display: none !important; }
-        .screen-visible { display: block !important; }
-        input {
-            border: 2px solid #93c5fd !important;
-            padding: 0.75rem 1rem !important;
-            border-radius: 0.5rem !important;
-            background-color: white !important;
-            text-align: center;
+        :root {
+            --primary: #0f766e;
+            --primary-light: #14b8a6;
+            --primary-dark: #115e59;
+            --accent: #f59e0b;
+            --danger: #dc2626;
+            --bg: #f7f9f8;
+            --card: #ffffff;
+            --text: #1e293b;
+            --muted: #64748b;
+            --border: #e2e8f0;
         }
-        input:focus {
-            outline: none;
-            border-color: #0ea5e9 !important;
-            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1) !important;
+        * { font-family: 'Cairo', system-ui, sans-serif; box-sizing: border-box; }
+        body {
+            background: var(--bg);
+            background-image:
+                radial-gradient(ellipse at 15% 85%, rgba(15,118,110,0.04) 0%, transparent 55%),
+                radial-gradient(ellipse at 85% 15%, rgba(245,158,11,0.03) 0%, transparent 55%);
         }
-        .drug-btn {
-            transition: all 0.3s;
-            position: relative;
+
+        .screen { display: none; }
+        .screen.active { display: block; }
+
+        input[type="text"], input[type="number"] {
+            border: 2px solid var(--border);
+            padding: 0.85rem 1rem; border-radius: 1rem;
+            text-align: center; width: 100%; font-size: 1.1rem;
+            font-family: 'Cairo', sans-serif; outline: none;
+            transition: border-color 0.25s, box-shadow 0.25s;
+            background: white; color: var(--text);
         }
-        .drug-btn:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 20px -3px rgba(0, 0, 0, 0.1);
+        input:focus { border-color: var(--primary-light); box-shadow: 0 0 0 3px rgba(20,184,166,0.12); }
+        input.sm-input { font-size: 0.95rem; padding: 0.6rem 0.8rem; }
+        input::placeholder { color: #94a3b8; font-weight: 400; }
+
+        select {
+            border: 2px solid var(--border);
+            padding: 0.6rem 0.8rem; border-radius: 0.75rem;
+            text-align: center; width: 100%; font-size: 0.95rem;
+            font-family: 'Cairo', sans-serif; outline: none;
+            transition: border-color 0.25s, box-shadow 0.25s;
+            background: white; color: var(--text); cursor: pointer;
         }
-        .action-btn {
-            min-height: 56px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: all 0.2s;
+        select:focus { border-color: var(--primary-light); box-shadow: 0 0 0 3px rgba(20,184,166,0.12); }
+
+        .section-title {
+            font-size: 1.15rem; font-weight: 800; color: var(--text);
+            text-align: center; margin-bottom: 1.25rem;
+            display: inline-block; width: 100%;
         }
-        .action-btn:active {
-            transform: scale(0.98);
+        .section-title::after {
+            content: ''; display: block; width: 40px; height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+            border-radius: 999px; margin: 8px auto 0;
         }
+
+        .placeholder-msg {
+            color: var(--muted); font-size: 0.85rem; line-height: 1.6;
+            text-align: center; padding: 4px 0; user-select: none;
+        }
+
+        .prep-box {
+            background: linear-gradient(135deg, #fffbeb, #fff7ed);
+            border-right: 4px solid var(--accent);
+            padding: 14px 16px; margin: 12px 0;
+            border-radius: 0 12px 12px 0;
+            font-size: 0.9rem; color: #78350f;
+            font-weight: 600; line-height: 1.7;
+        }
+        .admin-box {
+            background: linear-gradient(135deg, #f0fdfa, #ecfdf5);
+            border-right: 4px solid var(--primary-light);
+            padding: 14px 16px; margin-top: 12px;
+            border-radius: 0 12px 12px 0;
+            font-size: 0.9rem; color: #134e4a;
+            font-weight: 600; line-height: 1.7;
+        }
+        .fluid-result-box {
+            background: linear-gradient(135deg, #f0fdfa, #ecfdf5);
+            border-right: 4px solid var(--primary-light);
+            padding: 12px 16px; margin-top: 10px;
+            border-radius: 0 12px 12px 0;
+            font-size: 0.9rem; color: #134e4a;
+            font-weight: 600; min-height: 40px;
+        }
+        .warning-box {
+            background: linear-gradient(135deg, #fef2f2, #fff1f2);
+            border-right: 4px solid var(--danger);
+            padding: 10px 14px; margin-top: 8px;
+            border-radius: 0 10px 10px 0;
+            font-size: 0.8rem; color: #991b1b;
+            font-weight: 700; line-height: 1.7;
+        }
+
+        .info-row {
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 0.9rem; padding: 8px 12px;
+            background: white; border-radius: 10px; border: 1px solid var(--border);
+            transition: background 0.2s, border-color 0.2s;
+        }
+        .info-row.gir-mismatch {
+            background: #fffbeb;
+            border-color: #fbbf24;
+        }
+
+        .dopamine-table {
+            width: 100%; margin-top: 14px;
+            border-collapse: separate; border-spacing: 0;
+            font-size: 0.85rem; direction: ltr;
+            border-radius: 12px; overflow: hidden;
+            border: 1px solid var(--border);
+        }
+        .dopamine-table th {
+            background: linear-gradient(135deg, #f0fdfa, #f8fafc);
+            color: var(--muted); font-weight: 700;
+            text-transform: uppercase; font-size: 0.7rem;
+            letter-spacing: 0.05em; padding: 10px;
+            border-bottom: 2px solid var(--border);
+        }
+        .dopamine-table td {
+            padding: 12px 10px; text-align: center;
+            border-bottom: 1px solid #f1f5f9; background: white;
+        }
+        .dopamine-table tr:last-child td { border-bottom: none; }
+        .dopamine-table tr:hover td { background: #f8fafc; }
+
+        .drug-card {
+            padding: 14px 16px; border-radius: 16px;
+            border: 2px solid var(--border); text-align: left;
+            transition: all 0.2s ease; cursor: pointer;
+            background: white; position: relative; overflow: hidden;
+        }
+        .drug-card::before {
+            content: ''; position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            opacity: 0; transition: opacity 0.2s ease;
+        }
+        .drug-card:hover {
+            border-color: #cbd5e1; transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        }
+        .drug-card.selected {
+            border-color: var(--primary);
+            box-shadow: 0 4px 16px rgba(15,118,110,0.2);
+        }
+        .drug-card.selected::before { opacity: 1; }
+        .drug-card > * { position: relative; z-index: 1; }
+        .drug-card.selected .drug-name,
+        .drug-card.selected .drug-dose { color: white !important; }
+
+        .result-card {
+            background: white; border-radius: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.03);
+            border: 1px solid var(--border); overflow: hidden;
+        }
+        .result-card-header {
+            padding: 20px 24px 16px;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .result-card-body { padding: 0 24px 24px; }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            color: white; padding: 1rem; border-radius: 1rem;
+            font-weight: 700; font-size: 1.05rem; width: 100%;
+            border: none; cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(15,118,110,0.3);
+            font-family: 'Cairo', sans-serif;
+        }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(15,118,110,0.35); }
+        .btn-primary:active { transform: scale(0.98); }
+        .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        .btn-secondary {
+            background: white; color: var(--muted);
+            padding: 0.85rem; border-radius: 0.85rem;
+            font-weight: 600; font-size: 0.95rem; width: 100%;
+            border: 2px solid var(--border); cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Cairo', sans-serif;
+        }
+        .btn-secondary:active { transform: scale(0.98); background: #f8fafc; }
+
+        .btn-telegram {
+            background: linear-gradient(135deg, #1d4ed8, #2563eb);
+            color: white; padding: 1rem; border-radius: 1rem;
+            font-weight: 700; font-size: 1.05rem; width: 100%;
+            border: none; cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(37,99,235,0.3);
+            font-family: 'Cairo', sans-serif;
+        }
+        .btn-telegram:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(37,99,235,0.35); }
+        .btn-telegram:active { transform: scale(0.98); }
+
+        .search-input {
+            border: 2px solid var(--border);
+            padding: 0.75rem 1rem 0.75rem 2.75rem;
+            border-radius: 1rem; width: 100%;
+            font-size: 1rem; font-family: 'Cairo', sans-serif;
+            outline: none; transition: border-color 0.25s, box-shadow 0.25s;
+            background: white; color: var(--text);
+        }
+        .search-input:focus { border-color: var(--primary-light); box-shadow: 0 0 0 3px rgba(20,184,166,0.12); }
+
+        .badge {
+            display: inline-flex; align-items: center; justify-content: center;
+            min-width: 26px; height: 26px; border-radius: 999px;
+            font-size: 0.75rem; font-weight: 800; padding: 0 8px;
+        }
+
+        .header-gradient {
+            background: linear-gradient(135deg, #115e59, #0f766e, #0d9488);
+        }
+
         .toast {
-            animation: slideIn 0.3s ease-out, fadeOut 0.3s ease-in 2.7s forwards;
+            animation: toastIn 0.4s cubic-bezier(0.16,1,0.3,1), toastOut 0.3s ease-in 2.7s forwards;
         }
-        @keyframes slideIn {
-            from { transform: translateY(-100%); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+        @keyframes toastIn { from { transform: translateY(-100%) scale(0.9); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
+        @keyframes toastOut { from { opacity: 1; } to { opacity: 0; transform: translateY(-20px); } }
+
+        .no-results {
+            text-align: center; padding: 40px 20px;
+            color: var(--muted); font-size: 0.95rem;
         }
-        @keyframes fadeOut {
-            from { opacity: 1; }
-            to { opacity: 0; }
+
+        .num-hl { color: var(--primary-light); font-weight: 800; }
+        .box-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; display: block; font-weight: 700; }
+        .gir-amber { color: #b45309; font-weight: 800; }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-sky-50 via-cyan-50 to-teal-50 min-h-screen flex flex-col">
-    <!-- Toast Notification -->
+<body class="min-h-screen flex flex-col">
+
     <div id="toastContainer" class="fixed top-4 left-0 right-0 z-50 flex justify-center pointer-events-none">
-        <div id="successToast" class="toast bg-emerald-600 text-white px-6 py-4 rounded-xl shadow-2xl hidden pointer-events-auto">
-            <div class="flex items-center gap-3">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                </svg>
-                <span class="font-bold text-lg">تم إرسال البيانات بنجاح إلى الصيدلية!</span>
-            </div>
+        <div id="successToast" class="toast bg-emerald-600 text-white px-6 py-3 rounded-full shadow-xl hidden pointer-events-auto text-sm font-bold">
+            تم إبلاغ الصيدلية بنجاح
         </div>
     </div>
 
-    <header class="bg-gradient-to-l from-sky-500 to-teal-500 text-white shadow-lg">
-        <div class="container mx-auto px-4 py-6">
-            <div class="flex items-center justify-between">
-                <div class="flex-1">
-                    <button id="backBtn" class="text-white hover:bg-white/20 p-2 rounded-lg hidden">← رجوع</button>
-                </div>
-                <div class="text-center flex-[2]">
-                    <h1 class="text-2xl md:text-4xl font-bold">حاسبة الجرعات</h1>
-                    <p class="text-sky-100 text-sm md:text-base">خاص بوحدة العناية المركزة لحديثي الولادة (الخدج) لمستشفى بغداد التعليمي</p>
-                </div>
-                <div class="flex-1 flex justify-end">
-                    <div id="headerPatientInfo" class="bg-white/20 rounded-lg px-3 py-2 flex items-center gap-2 hidden">
-                        <span class="text-sm"><span id="headerPatientName" class="font-semibold"></span> | <span id="headerPatientWeight" class="text-sky-100"></span></span>
-                    </div>
-                </div>
+    <header class="header-gradient text-white p-4 shadow-lg sticky top-0 z-40">
+        <div class="flex items-center justify-between max-w-4xl mx-auto">
+            <button id="backBtn" class="bg-white/15 hover:bg-white/25 p-2.5 rounded-xl transition-all hidden backdrop-blur-sm" aria-label="رجوع">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+            </button>
+            <div class="flex-1 text-center">
+                <h1 class="text-lg font-black tracking-tight">حاسبة جرعات الخدج</h1>
+                <p class="text-[9px] text-teal-200/70 uppercase tracking-[0.2em] mt-0.5">Baghdad Teaching Hospital — NICU</p>
             </div>
+            <div id="headerSpacer" class="w-10"></div>
         </div>
     </header>
 
-    <main class="flex-1 px-4 py-8 relative">
-        <div id="greetingScreen" class="screen-visible">
-            <div class="flex items-center justify-center h-full">
-                <div class="w-full max-w-md">
-                    <div class="shadow-2xl border-2 border-sky-200 rounded-xl bg-white">
-                        <div class="bg-gradient-to-l from-sky-50 to-teal-50 border-b-2 border-sky-200 p-6 rounded-t-xl">
-                            <h2 class="text-2xl text-sky-800 text-center font-bold">معلومات المريض</h2>
-                            <p class="text-center text-sky-700">أدخل بيانات الطفل للبدء</p>
+    <main class="flex-1 p-4 pb-32">
+
+        <div id="greetingScreen" class="screen active max-w-2xl mx-auto">
+
+            <div class="result-card mt-5">
+                <div class="result-card-body" style="padding-top:24px;">
+                    <h2 class="section-title">معلومات المريض</h2>
+                    <div class="space-y-5">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-500 mb-1.5">اسم الطفل</label>
+                            <input id="babyName" type="text" placeholder="أدخل اسم الطفل">
                         </div>
-                        <div class="p-6 space-y-6">
-                            <div class="space-y-2">
-                                <label for="babyName" class="text-sky-800 text-base font-semibold block">اسم الطفل</label>
-                                <input id="babyName" type="text" placeholder="أدخل اسم الطفل" class="w-full text-lg border-sky-300 rounded-lg px-4 py-3">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-500 mb-1.5">الوزن (كجم)</label>
+                            <input id="babyWeight" type="text" placeholder="مثال: 1.5" inputmode="decimal">
+                        </div>
+                        <div id="errorMessage" class="text-red-600 text-sm font-bold text-center hidden bg-red-50 p-3 rounded-xl border border-red-100"></div>
+                        <button id="selectTreatmentBtn" class="btn-primary">
+                            اختيار العلاج
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-1 rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="result-card mt-6">
+                <div class="result-card-body" style="padding-top:24px;">
+                    <h2 class="section-title">حاسبة السوائل الوريدية</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="bg-slate-50/80 p-4 rounded-2xl border border-slate-200/80">
+                            <h3 class="text-sm font-bold text-slate-600 mb-3 text-center">تحضير السائل</h3>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-500 mb-1">نوع السائل</label>
+                                    <select id="fluidType" onchange="calculateFluidPrep()">
+                                        <option value="1/5 GS">1/5 GS</option>
+                                        <option value="10% GW">10% GW</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-500 mb-1">الحجم الكلي (مل)</label>
+                                    <input id="totalFluidVol" type="text" inputmode="decimal" class="sm-input" placeholder="مثال: 120" oninput="calculateFluidPrep()">
+                                </div>
+                                <div id="fluidPrepResult" class="fluid-result-box text-center text-sm">
+                                    <div class="placeholder-msg">أدخل الحجم لعرض طريقة التحضير</div>
+                                </div>
                             </div>
-                            <div class="space-y-2">
-                                <label for="babyWeight" class="text-sky-800 text-base font-semibold block">وزن الطفل (كجم)</label>
-                                <input id="babyWeight" type="text" inputmode="decimal" placeholder="مثال: 1.25" class="w-full text-lg border-sky-300 rounded-lg px-4 py-3">
-                                <p class="text-xs text-sky-600 mt-2">يقبل الأرقام العربية (٠-٩) والإنجليزية</p>
+                        </div>
+
+                        <div class="bg-slate-50/80 p-4 rounded-2xl border border-slate-200/80">
+                            <h3 class="text-sm font-bold text-slate-600 mb-3 text-center">حساب من GIR</h3>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-500 mb-1">الوزن (كجم)</label>
+                                    <input id="girWeight" type="text" inputmode="decimal" class="sm-input" placeholder="مثال: 1.5" oninput="calculateGIR()">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-500 mb-1">معدل GIR (ملغم/كغم/دقيقة)</label>
+                                    <input id="girRate" type="text" inputmode="decimal" class="sm-input" placeholder="مثال: 6" oninput="calculateGIR()">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-500 mb-1">حجم الكيس (مل)</label>
+                                    <input id="girBagVol" type="text" inputmode="decimal" class="sm-input" placeholder="مثال: 120" oninput="calculateGIR()">
+                                </div>
+                                <div id="girResults" class="mt-2 space-y-2">
+                                    <div id="girPlaceholder">
+                                        <div class="placeholder-msg">أدخل المعلومات لعرض طريقة التحضير</div>
+                                    </div>
+                                    <div id="girActualResults" class="hidden space-y-2">
+                                        <div class="info-row">
+                                            <span class="text-slate-500 text-sm">5% GW</span>
+                                            <span id="resGW" class="font-bold text-slate-800">0 مل</span>
+                                        </div>
+                                        <div class="info-row">
+                                            <span class="text-slate-500 text-sm">50% HT</span>
+                                            <span id="resHT" class="font-bold text-slate-800">0 مل</span>
+                                        </div>
+                                        <div class="info-row">
+                                            <span class="text-slate-500 text-sm">التركيز</span>
+                                            <span id="resConc" class="font-bold text-slate-800">0 %</span>
+                                        </div>
+                                        <div id="girActualRow" class="info-row">
+                                            <span class="text-slate-500 text-sm">GIR الفعلي</span>
+                                            <span id="resActualGIR" class="font-bold text-slate-800">0 mg/kg/min</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="girWarnings"></div>
                             </div>
-                            <div id="errorMessage" class="bg-red-50 border-2 border-red-300 text-red-700 px-4 py-3 rounded-lg text-center hidden"></div>
-                            <button id="selectTreatmentBtn" class="w-full bg-gradient-to-l from-sky-500 to-teal-500 hover:from-sky-600 hover:to-teal-600 text-white text-lg font-bold py-4 shadow-lg rounded-lg transition-all">اختيار العلاج</button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div id="drugSelectionScreen" class="screen-hidden">
-            <div class="container mx-auto max-w-4xl">
-                <div class="mb-6 bg-gradient-to-l from-sky-100 to-teal-100 border-2 border-sky-300 rounded-xl p-6">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-4">
-                            <div class="bg-gradient-to-l from-sky-500 to-teal-500 rounded-full p-3 text-white text-2xl">👶</div>
-                            <div>
-                                <h2 id="selectionPatientName" class="text-xl font-bold text-sky-800">مجهول</h2>
-                                <p class="text-sky-700">الوزن: <span id="selectionPatientWeight" class="font-bold">0</span> كجم</p>
-                            </div>
-                        </div>
-                        <div class="bg-white/50 rounded-full px-3 py-2">
-                            <span id="selectedDrugsCount" class="text-sm text-sky-700 font-bold">0 دواء محدد</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="mb-6">
-                    <h2 class="text-2xl font-bold text-sky-800 mb-2">اختيار الأدوية</h2>
-                    <p class="text-sky-700">حدد الأدوية المطلوبة لحساب جرعاتها</p>
-                </div>
-                <div id="drugGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-24"></div>
+        <div id="drugSelectionScreen" class="screen max-w-4xl mx-auto">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-bold text-slate-700">اختر الأدوية</h2>
+                <div id="selectedCount" class="badge bg-teal-100 text-teal-800 hidden">0</div>
             </div>
+            <div class="relative mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                <input id="drugSearch" type="text" class="search-input" placeholder="ابحث عن دواء..." oninput="filterDrugs()">
+            </div>
+            <div id="drugGrid" dir="ltr" class="grid grid-cols-2 sm:grid-cols-3 gap-3 pb-8"></div>
+            <div id="noResults" class="no-results hidden">لا توجد نتائج مطابقة</div>
         </div>
 
-        <div id="resultsScreen" class="screen-hidden">
-            <div class="container mx-auto max-w-5xl pb-40">
-                <div class="mb-6 bg-gradient-to-l from-emerald-500 to-teal-600 border-2 border-emerald-600 rounded-xl p-6 text-white shadow-lg">
-                    <div class="flex items-center gap-4">
-                        <div class="bg-white/20 rounded-full p-3 text-white text-2xl">📋</div>
-                        <div>
-                            <h2 class="text-2xl font-bold mb-1">نتائج الحساب</h2>
-                            <p><span id="resultsPatientName"></span> | <span id="resultsPatientWeight"></span> كجم</p>
-                        </div>
-                    </div>
-                </div>
-                <div id="resultsGrid" class="grid grid-cols-1 lg:grid-cols-2 gap-6"></div>
-                
-                <div class="mt-8 bg-amber-50 border-2 border-amber-300 rounded-xl p-6 shadow-sm">
-                    <div class="flex items-start gap-3">
-                        <span class="text-amber-600 text-2xl">⚠️</span>
-                        <div>
-                            <p class="text-amber-900 font-bold text-lg mb-1">تنبيه هام</p>
-                            <p class="text-amber-700 text-sm">يرجى مراجعة الحسابات والتأكد من صحة البيانات والوزن قبل إعطاء أي دواء للطفل.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div id="resultsScreen" class="screen max-w-2xl mx-auto">
+            <div id="resultsGrid" class="space-y-4 pb-8"></div>
         </div>
     </main>
 
-    <div id="calculateBtnContainer" class="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-sky-200 p-4 shadow-lg hidden">
-        <div class="container mx-auto max-w-4xl">
-            <button id="calculateBtn" class="w-full py-4 text-lg font-bold bg-gradient-to-l from-sky-500 to-teal-500 text-white rounded-xl shadow-md disabled:opacity-50">حساب الجرعات</button>
-        </div>
+    <div id="calculateBtnContainer" class="fixed bottom-0 left-0 right-0 bg-white/85 backdrop-blur-xl border-t border-slate-200/60 p-4 hidden z-50">
+        <button id="calculateBtn" class="btn-primary max-w-4xl mx-auto block" disabled>
+            حساب النتائج وإرسال للبوت
+        </button>
     </div>
 
-    <div id="resultsFooter" class="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-emerald-100 p-6 shadow-[0_-10px_20px_rgba(0,0,0,0.05)] hidden">
-        <div class="container mx-auto max-w-4xl space-y-4">
-            <button id="sendToTelegramBtn" class="action-btn w-full bg-gradient-to-l from-blue-500 to-blue-600 text-white font-bold rounded-xl hover:from-blue-600 hover:to-blue-700 shadow-md">
-                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
-                </svg>
-                <span>تبليغ الصيادلة باعطاء العلاج</span>
-            </button>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <button id="startOverBtn" class="action-btn w-full bg-emerald-50 border-2 border-emerald-500 text-emerald-700 font-bold rounded-xl hover:bg-emerald-100">
-                    <span>🔄</span> بدء جديد
-                </button>
-                <a href="https://t.me/NICU_BTHbot" target="_blank" class="action-btn w-full bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 shadow-md">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
-                    </svg>
-                    <span>التواصل مع فريق الصيادلة</span>
-                </a>
-            </div>
+    <div id="resultsFooter" class="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-slate-200/60 p-4 hidden z-50">
+        <div class="max-w-md mx-auto space-y-3">
+            <button id="sendToTelegramBtn" class="btn-telegram">تبليغ الصيادلة بالإعطاء</button>
+            <button id="startOverBtn" class="btn-secondary">مريض جديد</button>
         </div>
     </div>
 
     <script>
-        // Initialize variables
-        const DRUGS = [
-            { id: 1, name: 'Amoxicillin', nameAr: 'أموكسيسيلين', dosePerKg: 50, unit: 'mg', factor: 1, methodIndex: 1, timeMultiplier: 1 },
-            { id: 2, name: 'Gentamicin', nameAr: 'جنتاميسين', dosePerKg: 5, unit: 'mg', factor: 12.5, methodIndex: 2, timeMultiplier: 1 },
-            { id: 3, name: 'Caffeine Loading', nameAr: 'كافيين تحميلي', dosePerKg: 20, unit: 'mg', factor: 2, methodIndex: 3, timeMultiplier: 1 },
-            { id: 4, name: 'Caffeine Maintenance', nameAr: 'كافيين صيانة', dosePerKg: 10, unit: 'mg', factor: 50, methodIndex: 4, timeMultiplier: 1 },
-            { id: 5, name: 'Colistin Loading', nameAr: 'كوليستين تحميلي', dosePerKg: 150000, unit: 'IU', factor: 30, methodIndex: 5, timeMultiplier: 1 },
-            { id: 6, name: 'Colistin Maintenance', nameAr: 'كوليستين صيانة', dosePerKg: 37500, unit: 'IU', factor: 7.5, methodIndex: 6, timeMultiplier: 1 },
-            { id: 7, name: 'Tigecycline', nameAr: 'تيجيسايكلين', dosePerKg: 2, unit: 'mg', factor: 2, methodIndex: 7, timeMultiplier: 1 },
-            { id: 8, name: 'Meropenem', nameAr: 'ميروبينيم', dosePerKg: 40, unit: 'mg', factor: 1.6, methodIndex: 8, timeMultiplier: 1 },
-            { id: 9, name: 'Dopamine', nameAr: 'دوبامين', dosePerKg: 5, unit: 'mcg', factor: 36, methodIndex: 9, timeMultiplier: 1440 },
-            { id: 10, name: 'Dexmedetomidine', nameAr: 'ديكسميدتوميدين', dosePerKg: 0.3, unit: 'mcg', factor: 14.4, methodIndex: 10, timeMultiplier: 24 },
-            { id: 11, name: 'Dexmedetomidine Loading', nameAr: 'ديكسميدتوميدين تحميلي', dosePerKg: 0.1, unit: 'mcg', factor: 5, methodIndex: 11, timeMultiplier: 1 },
-            { id: 12, name: 'Midazolam Loading', nameAr: 'ميدازولام تحميلي', dosePerKg: 0.1, unit: 'mg', factor: 10, methodIndex: 12, timeMultiplier: 1 },
-            { id: 13, name: 'Midazolam Maintenance', nameAr: 'ميدازولام صيانة', dosePerKg: 0.03, unit: 'mg', factor: 14.4, methodIndex: 13, timeMultiplier: 24 },
-            { id: 14, name: 'Phenobarbital Loading', nameAr: 'فينوباربيتال تحميلي', dosePerKg: 20, unit: 'mg', factor: 4, methodIndex: 14, timeMultiplier: 1 },
-            { id: 15, name: 'Phenobarbital Maintenance', nameAr: 'فينوباربيتال صيانة', dosePerKg: 2.5, unit: 'mg', factor: 0.5, methodIndex: 15, timeMultiplier: 1, hasConditionalFactor: true }
+        var DRUGS = [
+            {
+                id: 1, name: 'Amoxicillin', dosePerKg: 50, unit: 'mg', timeMultiplier: 1, concentration: 50, lossType: null,
+                prep: 'تحل الفيالة بـ 10 سيسي نورمال سلاين',
+                getAdmin: function(volMl, add, w) {
+                    if (w < 1) return 'تسحب ' + Math.round(volMl * 100) + ' وحدة انسولين وتخفف مع 3 سيسي كلوكوز وتر وتعطى خلال 5 دقائق';
+                    return 'تسحب ' + smartFormat(volMl) + ' مل وتعطى خلال 5 دقائق';
+                }
+            },
+            {
+                id: 17, name: 'Amikacin', dosePerKg: 15, unit: 'mg', timeMultiplier: 1,
+                concentration: 8, lossType: null,
+                prep: 'تخفف الامبولة مع 60 سيسي نورمال سلاين',
+                getAdmin: function(volMl) {
+                    return 'تسحب ' + smartFormat(volMl) + ' سيسي وتخفف بـ 3 سيسي كلوكوز وتر ويعطى خلال 10 دقائق';
+                }
+            },
+            {
+                id: 2, name: 'Gentamicin', dosePerKg: 5, unit: 'mg', timeMultiplier: 1, concentration: 40, lossType: null,
+                prep: 'تسحب الجرعة مباشرة من الامبولة',
+                getAdmin: function(volMl) {
+                    return 'تسحب ' + Math.round(volMl * 100) + ' وحدة انسولين وتخفف بـ 5 سيسي كلوكوز وتر ويعطى خلال 10 دقائق';
+                }
+            },
+            {
+                id: 3, name: 'Caffeine Loading', dosePerKg: 20, unit: 'mg', timeMultiplier: 1, concentration: 20,
+                lossType: function(w) { return w < 1 ? { bag: 15, give: 5 } : { bag: 20, give: 10 }; },
+                prep: 'تسحب الجرعة مباشرة من الامبولة',
+                getAdmin: function(volMl, add, w) {
+                    var giveTxt = w < 1 ? '5' : '10';
+                    return 'تسحب ' + smartFormat(volMl) + ' مل وتضاف إلى ' + add + ' سيسي كلوكوز وتر، تفرغ 10 سيسي وتعطى ' + giveTxt + ' خلال 30 دقيقة';
+                }
+            },
+            {
+                id: 4, name: 'Caffeine Maint.', dosePerKg: 10, unit: 'mg', timeMultiplier: 1, concentration: 20, lossType: null,
+                prep: 'تسحب الجرعة مباشرة من الامبولة',
+                getAdmin: function(volMl) {
+                    return 'تسحب ' + Math.round(volMl * 100) + ' وحدة انسولين وتخفف بـ 5 سيسي كلوكوز وتر ويعطى خلال 10 دقائق';
+                }
+            },
+            {
+                id: 5, name: 'Colistin Loading', dosePerKg: 150000, unit: 'IU', timeMultiplier: 1,
+                concentration: 500000, lossType: null,
+                prep: 'تحل الفيالة بقوة 150mg او 4.5MIU ب9 سيسي ماء مقطر حصراً، وبقوة 1MIU ب2 سيسي ماء مقطر حصراً',
+                getAdmin: function(volMl) {
+                    return 'تسحب ' + Math.round(volMl * 100) + ' وحدة انسولين وتخفف بـ 5 سيسي كلوكوز وتر ويعطى خلال 5 دقائق';
+                }
+            },
+            {
+                id: 6, name: 'Colistin Maint.', dosePerKg: 37500, unit: 'IU', timeMultiplier: 1,
+                concentration: 500000, lossType: null,
+                prep: 'تحل الفيالة بقوة 150mg او 4.5MIU ب9 سيسي ماء مقطر حصراً، وبقوة 1MIU ب2 سيسي ماء مقطر حصراً',
+                getAdmin: function(volMl) {
+                    return 'تسحب ' + Math.round(volMl * 100) + ' وحدة انسولين وتخفف بـ 5 سيسي كلوكوز وتر ويعطى خلال 5 دقائق';
+                }
+            },
+            {
+                id: 7, name: 'Tigecycline', dosePerKg: 2, unit: 'mg', timeMultiplier: 1,
+                concentration: 2,
+                lossType: function(w) { return w < 1 ? { bag: 15, give: 5 } : { bag: 20, give: 10 }; },
+                prep: 'تحل الفيالة بقوة 50mg ب 5.3 سيسي كلوكوز وتر ، ويسحب 5 سيسي فقط من الفيالة وتضاف الى 20 سيسي كلوكوز وتر',
+                getAdmin: function(volMl, add, w) {
+                    var giveTxt = w < 1 ? '5' : '10';
+                    return 'تسحب ' + smartFormat(volMl) + ' مل وتضاف إلى ' + add + ' سيسي كلوكوز وتر، تفرغ 10 سيسي وتعطى ' + giveTxt + ' خلال 30 دقيقة';
+                }
+            },
+            {
+                id: 8, name: 'Meropenem', dosePerKg: 40, unit: 'mg', timeMultiplier: 1,
+                concentration: 50,
+                lossType: function(w) { return w < 1 ? { bag: 15, give: 5 } : { bag: 20, give: 10 }; },
+                prep: 'تحل الفيالة بقوة 1gm ب20 سيسي نورمال سلاين، وبقوة 500mg ب10 سيسي نورمال سلاين',
+                getAdmin: function(volMl, add, w) {
+                    if (w < 1) return 'تسحب ' + smartFormat(volMl) + ' مل وتضاف إلى ' + add + ' سيسي كلوكوز وتر، تفرغ 10 سيسي وتعطى 5 خلال 30 دقيقة';
+                    return 'تسحب ' + smartFormat(volMl) + ' مل وتضاف إلى ' + add + ' سيسي كلوكوز وتر، تفرغ 10 سيسي وتعطى 10 خلال 30 دقيقة';
+                }
+            },
+            {
+                id: 9, name: 'Dopamine', dosePerKg: 5, unit: 'mcg', timeMultiplier: 1440,
+                isInfusion: true, lossType: null,
+                prep: '1 مل (40 ملغم) دوبامين + 39 مل جلوكوز ووتر (المجموع 40 مل)',
+                getAdmin: function() {
+                    return 'عن طريق جهاز الإعطاء المستمر بالسرعات الموضحة أدناه.';
+                }
+            },
+            {
+                id: 10, name: 'Dexmedetomidine', dosePerKg: 0.3, unit: 'mcg', timeMultiplier: 24,
+                concentration: 100, lossType: { bag: 20, give: 10 },
+                prep: 'تسحب الجرعة مباشرة من الامبولة',
+                getAdmin: function(volMl) {
+                    return 'تسحب ' + Math.round(volMl * 100) + ' وحدة انسولين وتضاف إلى 20 سيسي كلوكوز وتر، تفرغ 10 سيسي ويعطى 10 خلال 24 ساعة';
+                }
+            },
+            {
+                id: 11, name: 'Dexmedetomidine Load', dosePerKg: 0.1, unit: 'mcg', timeMultiplier: 1,
+                concentration: 2, lossType: null,
+                prep: 'تخفف 10 يونت من الامبولة الى 5 سيسي مع نورمال سلاين',
+                getAdmin: function(volMl) {
+                    return 'تخفف 10 يونت من الامبولة الى 5 مل، تسحب ' + Math.round(volMl * 100) + ' وحدة انسولين من المخفف وتضاف الى 3 مل NS وتعطى خلال 15 دقيقة';
+                }
+            },
+            {
+                id: 12, name: 'Midazolam Loading', dosePerKg: 0.1, unit: 'mg', timeMultiplier: 1,
+                concentration: 1, lossType: null,
+                prep: 'تخفف 1 مل من الامبولة الى 5 سيسي نورمال سلاين',
+                getAdmin: function(volMl) {
+                    return 'تخفف 1 مل من الامبولة الى 5 مل، تسحب ' + Math.round(volMl * 100) + ' وحدة انسولين من المخفف وتضاف الى 3 مل NS وتعطى خلال 5 دقائق';
+                }
+            },
+            {
+                id: 13, name: 'Midazolam Maint.', dosePerKg: 0.03, unit: 'mg', timeMultiplier: 24,
+                concentration: 5, lossType: { bag: 20, give: 10 },
+                prep: 'تسحب الجرعة مباشرة من الامبولة',
+                getAdmin: function(volMl) {
+                    return 'تسحب ' + Math.round(volMl * 100) + ' وحدة انسولين وتضاف إلى 20 سيسي كلوكوز وتر، تفرغ 10 سيسي ويعطى 10 خلال 24 ساعة';
+                }
+            },
+            {
+                id: 14, name: 'Phenobarbital Load', dosePerKg: 20, unit: 'mg', timeMultiplier: 1,
+                concentration: 10,
+                lossType: function(w) { return w < 1 ? { bag: 15, give: 5 } : { bag: 20, give: 10 }; },
+                prep: 'تخفف الامبولة بـ 20 سيسي نورمال سلاين',
+                getAdmin: function(volMl, add, w) {
+                    if (w < 1) return 'يسحب ' + smartFormat(volMl) + ' مل وتضاف إلى ' + add + ' سيسي كلوكوز وتر، تفرغ 10 سيسي وتعطى 5 خلال 30 دقيقة';
+                    return 'يسحب ' + smartFormat(volMl) + ' مل وتضاف إلى ' + add + ' سيسي كلوكوز وتر، تفرغ 10 سيسي وتعطى 10 خلال 30 دقيقة';
+                }
+            },
+            {
+                id: 15, name: 'Phenobarbital Maint.', dosePerKg: 2.5, unit: 'mg', timeMultiplier: 1,
+                concentration: 10,
+                lossType: function(w) { return w < 1 ? { bag: 15, give: 5 } : { bag: 20, give: 10 }; },
+                prep: 'تخفف الامبولة بـ 20 سيسي نورمال سلاين',
+                getAdmin: function(volMl, add, w) {
+                    if (w >= 2) return 'يسحب ' + smartFormat(volMl) + ' مل وتضاف إلى ' + add + ' سيسي كلوكوز وتر، تفرغ 10 سيسي وتعطى 10 خلال 30 دقيقة';
+                    if (w >= 1) return 'يسحب ' + Math.round(volMl * 100) + ' وحدة انسولين وتضاف إلى ' + add + ' سيسي كلوكوز وتر، تفرغ 10 سيسي وتعطى 10 خلال 30 دقيقة';
+                    return 'يسحب ' + Math.round(volMl * 100) + ' وحدة انسولين وتضاف إلى ' + add + ' سيسي كلوكوز وتر، تفرغ 10 سيسي وتعطى 5 خلال 30 دقيقة';
+                }
+            },
+            {
+                id: 16, name: 'Hydrocortisone', dosePerKg: 2, unit: 'mg', timeMultiplier: 1,
+                concentration: 20, lossType: null,
+                prep: 'تحل الامبولة ب5 سيسي نورمال سلاين',
+                getAdmin: function(volMl) {
+                    return 'تسحب ' + Math.round(volMl * 100) + ' وحدة انسولين وتخفف الى 3 سيسي مع نورمال سلاين وتعطى خلال 5 دقائق';
+                }
+            },
+            {
+                id: 18, name: 'Aminophylline (for HIE)', dosePerKg: 5, unit: 'mg', timeMultiplier: 1,
+                concentration: 25, lossType: { bag: 20, give: 10 },
+                prep: 'تسحب الجرعة مباشرة من الامبولة',
+                getAdmin: function(volMl, add, w) {
+                    if (w >= 2.5) return 'يسحب ' + smartFormat(volMl) + ' مل وتضاف إلى ' + add + ' سيسي كلوكوز وتر، تفرغ 10 سيسي وتعطى 10 خلال 30 دقيقة';
+                    return 'يسحب ' + Math.round(volMl * 100) + ' وحدة انسولين وتضاف إلى ' + add + ' سيسي كلوكوز وتر، تفرغ 10 سيسي وتعطى 10 خلال 30 دقيقة';
+                }
+            }
         ];
 
-        const METHODS = {
-            1: 'تسحب ** مل وتعطى خلال 5 دقائق',
-            2: 'تسحب ** وحدة انسولين وتخفف بـ 5 سيسي كلوكوز وتر ويعطى خلال 10 دقائق',
-            3: 'تسحب ** مل وتضاف إلى ## سيسي كلوكوز وتر، تفرغ 10 سيسي ويعطى 10 سيسي خلال 30 دقيقة',
-            4: 'تسحب ** وحدة انسولين وتخفف بـ 5 سيسي كلوكوز وتر ويعطى خلال 10 دقائق',
-            5: 'تسحب ** وحدة انسولين وتخفف بـ 5 سيسي كلوكوز وتر ويعطى خلال 5 دقائق',
-            6: 'تسحب ** وحدة انسولين وتخفف بـ 5 سيسي كلوكوز وتر ويعطى خلال 5 دقائق',
-            7: 'تسحب ** مل وتضاف إلى ## سيسي كلوكوز وتر، تفرغ 10 سيسي ويعطى 10 سيسي خلال 30 دقيقة',
-            8: 'تسحب ** مل وتضاف إلى ## سيسي كلوكوز وتر، تفرغ 10 سيسي ويعطى 10 سيسي خلال 30 دقيقة',
-            9: 'تسحب ** وحدة انسولين وتضاف إلى 20 سيسي كلوكوز وتر، تفرغ 10 سيسي ويعطى 10 سيسي خلال 24 ساعة *انتباه خلال 24 ساعة*',
-            10: 'تسحب ** وحدة انسولين وتضاف إلى 20 سيسي كلوكوز وتر، تفرغ 10 سيسي ويعطى 10 سيسي خلال 24 ساعة *انتباه خلال 24 ساعة*',
-            11: 'تسحب 10 يونت دكس من الامبولة وتخفف الى 5 مل، تسحب ** وحدة انسولين من المخفف وتضاف الى 3 مل نورمال سلاين وتعطى وريدي مباشر خلال 15 دقيقة',
-            12: 'تسحب 1 مل ميدازولام من الامبولة وتخفف الى 5 مل، تسحب ** وحدة انسولين من المخفف وتضاف الى 3 مل نورمال سلاين وتعطى وريدي مباشر خلال 5 دقائق',
-            13: 'تسحب ** وحدة انسولين وتضاف إلى 20 سيسي كلوكوز وتر، تفرغ 10 سيسي ويعطى 10 سيسي خلال 24 ساعة *انتباه خلال 24 ساعة*',
-            14: 'تخفف الامبولة الى 20 سيسي مع NS ويسحب ** مل من المخفف وتضاف إلى ## سيسي كلوكوز وتر، تفرغ 10 سيسي وتعطى 10 سيسي خلال 30 دقيقة',
-            15: 'تخفف الامبولة الى 20 سيسي NS ويسحب ** وحدة انسولين من المخفف وتضاف إلى 20 سيسي كلوكوز وتر، تفرغ 10 سيسي وتعطى 10 سيسي خلال 30 دقيقة'
-        };
+        var selectedDrugs = [];
+        var patientInfo = null;
+        var calculatedResults = [];
 
-        let currentScreen = 'greeting';
-        let selectedDrugs = [];
-        let patientInfo = null;
-        let calculatedResults = [];
-
-        // Utility functions
-        function normalizeNumerals(str) {
-            const arabicNumerals = '٠١٢٣٤٥٦٧٨٩';
-            const englishNumerals = '0123456789';
-            return str.replace(/[٠-٩]/g, (d) => englishNumerals[arabicNumerals.indexOf(d)]);
+        function cleanWeightInput(val) {
+            if (!val) return "";
+            return val.toString()
+                .replace(/[٠-٩]/g, function(d) { return '0123456789'['٠١٢٣٤٥٦٧٨٩'.indexOf(d)]; })
+                .replace(/[،,٫]/g, '.')
+                .replace(/[^\d.]/g, '');
         }
 
-        function formatNumber(num) {
-            const rounded = Math.round(num * 10) / 10;
-            if (Number.isInteger(rounded)) {
-                return rounded.toString();
-            }
-            return rounded.toFixed(1);
+        function smartFormat(num) {
+            var v = Math.round(num * 10) / 10;
+            return Number.isInteger(v) ? v.toString() : v.toFixed(1);
         }
 
-        function formatDose(dose, unit) {
-            if (unit === 'IU') {
-                return Math.round(dose).toLocaleString();
+        function highlightNums(text) {
+            return text.replace(/(\d+\.?\d*)/g, '<span class="num-hl">$1</span>');
+        }
+
+        function calculateFluidPrep() {
+            var totalFluid = parseFloat(cleanWeightInput(document.getElementById('totalFluidVol').value)) || 0;
+            var fluidType = document.getElementById('fluidType').value;
+            var resultDiv = document.getElementById('fluidPrepResult');
+
+            if (totalFluid <= 0) {
+                resultDiv.innerHTML = '<div class="placeholder-msg">أدخل الحجم لعرض طريقة التحضير</div>';
+                return;
             }
-            return formatNumber(dose);
+
+            var calcFluid = totalFluid, suffix = "";
+            if (totalFluid > 160) {
+                calcFluid = totalFluid / 2;
+                suffix = ' <span style="color:var(--primary-light);font-weight:800">\u00d72</span>';
+            }
+
+            var prep = "";
+            if (fluidType === '1/5 GS') {
+                prep = '(5% GW <span class="font-bold text-teal-700">' + Math.round(calcFluid * 0.8) + '</span> مل + <span class="font-bold text-teal-700">' + Math.round(calcFluid * 0.2) + '</span> مل NS)' + suffix;
+            } else if (fluidType === '10% GW') {
+                prep = '(5% GW <span class="font-bold text-teal-700">' + Math.round(calcFluid * 0.9) + '</span> مل + <span class="font-bold text-teal-700">' + Math.round(calcFluid * 0.1) + '</span> مل HT)' + suffix;
+            }
+            resultDiv.innerHTML = prep;
+        }
+
+        function calculateGIR() {
+            var w = parseFloat(cleanWeightInput(document.getElementById('girWeight').value)) || 0;
+            var gir = parseFloat(cleanWeightInput(document.getElementById('girRate').value)) || 0;
+            var vol = parseFloat(cleanWeightInput(document.getElementById('girBagVol').value)) || 0;
+
+            var placeholder = document.getElementById('girPlaceholder');
+            var actualRes = document.getElementById('girActualResults');
+            var warnBox = document.getElementById('girWarnings');
+
+            if (w <= 0 || gir <= 0 || vol <= 0) {
+                placeholder.classList.remove('hidden');
+                actualRes.classList.add('hidden');
+                warnBox.innerHTML = '';
+                return;
+            }
+
+            placeholder.classList.add('hidden');
+            actualRes.classList.remove('hidden');
+
+            var warnings = [];
+            var totalGlucose = w * gir * 1440;
+            var ht = Math.round(((totalGlucose / 50) - vol) / 9);
+            var gw = vol - ht;
+
+            if (ht < 0) {
+                ht = 0;
+                gw = vol;
+                warnings.push("تنبيه: الـ 5% GW وحده يوفر تركيزاً أعلى من GIR المطلوب. لا داعي لإضافة 50% HT.");
+            } else if (ht > vol) {
+                ht = vol;
+                gw = 0;
+                warnings.push("خطأ: الحجم الكلي غير كافٍ لتحضير هذا الـ GIR. قم بزيادة الحجم أو تقليل GIR.");
+            }
+
+            var totalDextrose = gw * 50 + ht * 500;
+            var conc = totalDextrose / vol / 10;
+            var actualGIR = totalDextrose / w / 1440;
+
+            if (conc > 12.5) {
+                warnings.push("تحذير: التركيز النهائي أعلى من 12.5% — يجب الإعطاء حصرياً عبر القسطرة السرية (Umbilical Catheter).");
+            }
+
+            document.getElementById('resGW').innerText = Math.round(gw) + ' مل';
+            document.getElementById('resHT').innerText = Math.round(ht) + ' مل';
+            document.getElementById('resConc').innerText = conc.toFixed(1) + ' %';
+            document.getElementById('resConc').className = conc > 12.5 ? 'font-bold text-red-600' : 'font-bold text-slate-800';
+
+            var isMismatch = Math.abs(actualGIR - gir) > 0.05;
+            var girRow = document.getElementById('girActualRow');
+            var girText = document.getElementById('resActualGIR');
+            if (isMismatch) {
+                girRow.className = 'info-row gir-mismatch';
+                girText.className = 'gir-amber';
+            } else {
+                girRow.className = 'info-row';
+                girText.className = 'font-bold text-slate-800';
+            }
+            girText.innerText = actualGIR.toFixed(1) + ' mg/kg/min';
+
+            if (warnings.length > 0) {
+                warnBox.innerHTML = warnings.map(function(msg) { return '<div class="warning-box">' + msg + '</div>'; }).join('');
+            } else {
+                warnBox.innerHTML = '';
+            }
         }
 
         function showScreen(screen) {
-            currentScreen = screen;
-            const greetingScreen = document.getElementById('greetingScreen');
-            const drugSelectionScreen = document.getElementById('drugSelectionScreen');
-            const resultsScreen = document.getElementById('resultsScreen');
+            var screens = {
+                greeting: document.getElementById('greetingScreen'),
+                drugSelection: document.getElementById('drugSelectionScreen'),
+                results: document.getElementById('resultsScreen')
+            };
 
-            if (greetingScreen) greetingScreen.className = screen === 'greeting' ? 'screen-visible' : 'screen-hidden';
-            if (drugSelectionScreen) drugSelectionScreen.className = screen === 'drugSelection' ? 'screen-visible' : 'screen-hidden';
-            if (resultsScreen) resultsScreen.className = screen === 'results' ? 'screen-visible' : 'screen-hidden';
-            
-            const backBtn = document.getElementById('backBtn');
-            const headerPatientInfo = document.getElementById('headerPatientInfo');
-            const calculateBtnContainer = document.getElementById('calculateBtnContainer');
-            const resultsFooter = document.getElementById('resultsFooter');
-
-            if (backBtn) backBtn.classList.toggle('hidden', screen === 'greeting');
-            if (headerPatientInfo) headerPatientInfo.classList.toggle('hidden', screen === 'greeting' || !patientInfo);
-            if (calculateBtnContainer) calculateBtnContainer.classList.toggle('hidden', screen !== 'drugSelection');
-            if (resultsFooter) resultsFooter.classList.toggle('hidden', screen !== 'results');
-            
-            window.scrollTo(0, 0);
-        }
-
-        function selectTreatment() {
-            try {
-                const nameInput = document.getElementById('babyName');
-                const weightInput = document.getElementById('babyWeight');
-                const errorEl = document.getElementById('errorMessage');
-
-                if (!nameInput || !weightInput || !errorEl) {
-                    console.error('Required elements not found');
-                    alert('حدث خطأ في تحميل الصفحة. يرجى تحديث الصفحة والمحاولة مرة أخرى.');
-                    return;
-                }
-
-                const name = nameInput.value.trim() || 'مجهول';
-                let weightRaw = weightInput.value;
-                let weight = parseFloat(normalizeNumerals(weightRaw));
-
-                if (isNaN(weight) || weight <= 0) {
-                    errorEl.textContent = 'الرجاء إدخال وزن صحيح';
-                    errorEl.classList.remove('hidden');
-                    return;
-                }
-
-                errorEl.classList.add('hidden');
-                patientInfo = { name, weight };
-                updateDrugSelectionUI();
-                showScreen('drugSelection');
-            } catch (error) {
-                console.error('Error in selectTreatment:', error);
-                alert('حدث خطأ: ' + error.message);
-            }
-        }
-
-        function updateDrugSelectionUI() {
-            try {
-                const selectionPatientName = document.getElementById('selectionPatientName');
-                const selectionPatientWeight = document.getElementById('selectionPatientWeight');
-                const headerPatientName = document.getElementById('headerPatientName');
-                const headerPatientWeight = document.getElementById('headerPatientWeight');
-                const selectedDrugsCount = document.getElementById('selectedDrugsCount');
-                const calculateBtn = document.getElementById('calculateBtn');
-
-                if (selectionPatientName) selectionPatientName.textContent = patientInfo.name;
-                if (selectionPatientWeight) selectionPatientWeight.textContent = patientInfo.weight;
-                if (headerPatientName) headerPatientName.textContent = patientInfo.name;
-                if (headerPatientWeight) headerPatientWeight.textContent = patientInfo.weight + ' كجم';
-                if (selectedDrugsCount) selectedDrugsCount.textContent = selectedDrugs.length + ' دواء محدد';
-                if (calculateBtn) calculateBtn.disabled = selectedDrugs.length === 0;
-                
-                renderDrugGrid();
-            } catch (error) {
-                console.error('Error in updateDrugSelectionUI:', error);
-            }
-        }
-
-        function renderDrugGrid() {
-            try {
-                const grid = document.getElementById('drugGrid');
-                if (!grid) return;
-
-                grid.innerHTML = DRUGS.map(drug => {
-                    const selected = selectedDrugs.includes(drug.id);
-                    return `
-                        <div onclick="toggleDrug(${drug.id})" class="drug-btn p-6 rounded-xl border-2 cursor-pointer ${selected ? 'bg-gradient-to-l from-sky-500 to-blue-600 border-blue-600 text-white shadow-lg' : 'bg-white border-sky-200 text-sky-800'}">
-                            ${selected ? '<div class="absolute top-2 left-2 bg-white/20 rounded-full w-6 h-6 flex items-center justify-center">✓</div>' : ''}
-                            <div class="text-left" dir="ltr">
-                                <h3 class="text-xl font-bold mb-1">${drug.name}</h3>
-                                <p class="text-sm ${selected ? 'text-white/80' : 'text-sky-500'}">${drug.dosePerKg} ${drug.unit}/kg</p>
-                            </div>
-                        </div>`;
-                }).join('');
-            } catch (error) {
-                console.error('Error in renderDrugGrid:', error);
-            }
-        }
-
-        function toggleDrug(id) {
-            try {
-                if (selectedDrugs.includes(id)) {
-                    selectedDrugs = selectedDrugs.filter(d => d !== id);
-                } else {
-                    selectedDrugs.push(id);
-                }
-                updateDrugSelectionUI();
-            } catch (error) {
-                console.error('Error in toggleDrug:', error);
-            }
-        }
-
-        function calculateDoses() {
-            try {
-                const grid = document.getElementById('resultsGrid');
-                const resultsPatientName = document.getElementById('resultsPatientName');
-                const resultsPatientWeight = document.getElementById('resultsPatientWeight');
-
-                if (!grid || !resultsPatientName || !resultsPatientWeight) {
-                    console.error('Results elements not found');
-                    return;
-                }
-
-                resultsPatientName.textContent = patientInfo.name;
-                resultsPatientWeight.textContent = patientInfo.weight;
-                
-                const isTinyWeight = patientInfo.weight < 1;
-                calculatedResults = [];
-
-                grid.innerHTML = selectedDrugs.map((id, index) => {
-                    const drug = DRUGS.find(d => d.id === id);
-                    let totalDose = patientInfo.weight * drug.dosePerKg * drug.timeMultiplier;
-
-                    const isDopamine = drug.id === 9;
-                    if (isDopamine) {
-                        totalDose = totalDose / 1000;
-                    }
-
-                    const displayUnit = isDopamine ? 'mg' : drug.unit;
-                    let displayDose = formatDose(totalDose, displayUnit);
-
-                    let factor = drug.factor;
-                    let method = METHODS[drug.methodIndex];
-
-                    // Drug 3: Caffeine Loading
-                    if (drug.id === 3 && isTinyWeight) {
-                        factor = 3;
-                        method = 'تسحب ** مل وتضاف إلى ^^ سيسي كلوكوز وتر، تفرغ 10 سيسي ويعطى 5 سيسي خلال 30 دقيقة';
-                    }
-
-                    // Drug 7: Tigecycline
-                    if (drug.id === 7 && isTinyWeight) {
-                        factor = 3;
-                        method = 'تسحب ** مل وتضاف إلى ^^ سيسي كلوكوز وتر، تفرغ 10 سيسي ويعطى 5 سيسي خلال 30 دقيقة';
-                    }
-
-                    // Drug 1: Amoxcicillin
-                    if (drug.id === 1 && isTinyWeight) {
-                        factor = 100;
-                        method = 'تسحب ** وحدة انسولين وتخفف مع 3 سيسي كلوكوز وتر وتعطى خلال 5 دقائق';
-                    }
-
-                    // Drug 8: Meropenem
-                    if (drug.id === 8 && isTinyWeight) {
-                        factor = 2.4;
-                        method = 'تسحب ** مل وتضاف إلى ^^ سيسي كلوكوز وتر، تفرغ 10 سيسي ويعطى 5 سيسي خلال 30 دقيقة';
-                    }
-
-                    // Drug 14: Phenobarbital Loading
-                    if (drug.id === 14 && isTinyWeight) {
-                        factor = 6;
-                        method = 'تخفف الامبولة الى 20 سيسي NS ويسحب ** مل وتضاف إلى ^^ سيسي كلوكوز وتر، تفرغ 10 سيسي ويعطى 5 سيسي خلال 30 دقيقة';
-                    }
-
-                    // Handle conditional factor for Phenobarbital Maintenance (ID 15)
-                    if (drug.id === 15) {
-                        if (patientInfo.weight >= 2) {
-                            factor = 0.5;
-                            method = 'تخفف الامبولة الى 20 سيسي NS ويسحب ** مل وتضاف إلى ## سيسي كلوكوز وتر، تفرغ 10 سيسي وتعطى 10 سيسي خلال 30 دقيقة';
-                        } else if (patientInfo.weight >= 1 && patientInfo.weight < 2) {
-                            factor = 50;
-                            method = 'تخفف الامبولة الى 20 سيسي NS وتسحب ** وحدة انسولين وتضاف إلى 20 سيسي كلوكوز وتر، تفرغ 10 سيسي وتعطى 10 سيسي خلال 30 دقيقة';
-                        } else {
-                            factor = 75;
-                            method = 'تخفف الامبولة الى 20 سيسي NS وتسحب ** وحدة انسولين وتضاف إلى 15 سيسي كلوكوز وتر، تفرغ 10 سيسي وتعطى 5 سيسي خلال 30 دقيقة';
-                        }
-                    }
-                    
-                    const volumeRoundToWhole = [2, 4, 5, 6, 9, 10, 11, 12, 13].includes(drug.id) || 
-                        (drug.id === 15 && (patientInfo.weight < 2));
-                    let volume = volumeRoundToWhole 
-                        ? Math.round(patientInfo.weight * factor)
-                        : Math.round((patientInfo.weight * factor) * 10) / 10;
-                    method = method.replace(/\*\*/g, volume);
-                    
-                    // Handle ^^ placeholder (15 - volume) for tiny weight drugs
-                    if (method.includes('\^\^')) {
-                        const hatHatValue = 15 - volume;
-                        method = method.replace(/\^\^/g, hatHatValue);
-                    }
-                    
-                    if (method.includes('##')) {
-                        let replacementValue;
-                        if (drug.id === 15) {
-                            if (patientInfo.weight >= 2) {
-                                replacementValue = volumeRoundToWhole ? (20 - volume) : (20 - volume).toFixed(1);
-                            } else if (patientInfo.weight >= 1 && patientInfo.weight < 2) {
-                                replacementValue = 20 - volume;
-                            } else {
-                                replacementValue = 15 - volume;
-                            }
-                        } else {
-                            replacementValue = volumeRoundToWhole ? (20 - volume) : (20 - volume).toFixed(1);
-                        }
-                        method = method.replace(/##/g, replacementValue);
-                    }
-
-                    // Store result for Telegram
-                    calculatedResults.push({
-                        drugName: drug.name,
-                        drugNameAr: drug.nameAr,
-                        dose: displayDose,
-                        unit: displayUnit,
-                        method: method
-                    });
-
-                    return `
-                        <div class="shadow-md border-2 border-emerald-100 bg-white rounded-xl overflow-hidden">
-                            <div class="bg-emerald-50 p-4 border-b border-emerald-100 flex items-center gap-3">
-                                <span class="bg-emerald-500 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold">${index + 1}</span>
-                                <h3 class="text-xl font-bold text-emerald-900" dir="ltr">${drug.name}</h3>
-                            </div>
-                            <div class="p-5 space-y-4">
-                                <div class="bg-emerald-100/50 rounded-lg p-3">
-                                    <p class="text-xs text-emerald-600 mb-1">الجرعة الكلية</p>
-                                    <p class="text-2xl font-black text-emerald-800">${displayDose} ${displayUnit}</p>
-                                </div>
-                                <div>
-                                    <p class="text-xs text-emerald-600 mb-2 font-bold">طريقة الإعطاء:</p>
-                                    <p class="text-gray-800 leading-relaxed">${method}</p>
-                                </div>
-                            </div>
-                        </div>`;
-                }).join('');
-                
-                showScreen('results');
-            } catch (error) {
-                console.error('Error in calculateDoses:', error);
-                alert('حدث خطأ في الحساب: ' + error.message);
-            }
-        }
-
-        function goBack() {
-            try {
-                if (currentScreen === 'results') {
-                    showScreen('drugSelection');
-                } else if (currentScreen === 'drugSelection') {
-                    showScreen('greeting');
-                }
-            } catch (error) {
-                console.error('Error in goBack:', error);
-            }
-        }
-
-        function startOver() {
-            try {
-                selectedDrugs = [];
-                patientInfo = null;
-                calculatedResults = [];
-                
-                const babyName = document.getElementById('babyName');
-                const babyWeight = document.getElementById('babyWeight');
-                const errorMessage = document.getElementById('errorMessage');
-                
-                if (babyName) babyName.value = '';
-                if (babyWeight) babyWeight.value = '';
-                if (errorMessage) errorMessage.classList.add('hidden');
-                
-                showScreen('greeting');
-            } catch (error) {
-                console.error('Error in startOver:', error);
-            }
-        }
-
-        async function sendToTelegram() {
-            const TELEGRAM_BOT_TOKEN = '8554444620:AAEKG5brSd0RFQ-NftjIHp7OJtqJRhQuJog';
-            const TELEGRAM_CHAT_ID = '-1003677372087';
-
-            const sendBtn = document.getElementById('sendToTelegramBtn');
-            if (!sendBtn) return;
-
-            const originalText = sendBtn.innerHTML;
-            sendBtn.innerHTML = '<svg class="animate-spin w-6 h-6" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span>جاري الإرسال...</span>';
-            sendBtn.disabled = true;
-
-            const now = new Date();
-            const dateStr = now.toLocaleDateString('en-IQ', { year: 'numeric', month: 'long', day: 'numeric' });
-            const timeStr = now.toLocaleTimeString('en-IQ', { hour: '2-digit', minute: '2-digit' });
-
-            let message = `🏥 *طلب علاج NICU - مستشفى بغداد التعليمي*\n`;
-            message += `📅 ${dateStr}\n`;
-            message += `⏰ ${timeStr}\n\n`;
-            message += `👶 *معلومات المريض:*\n`;
-            message += `• الاسم: ${patientInfo.name}\n`;
-            message += `• الوزن: ${patientInfo.weight} كجم\n\n`;
-            message += `💊 *الأدوية المطلوبة:*\n`;
-
-            calculatedResults.forEach((result, index) => {
-                message += `*${index + 1}. ${result.drugName}*\n`;
-                message += `   💉 الجرعة: ${result.dose} ${result.unit}\n`;
-                message += `   📝 طريقة الإعطاء:\n`;
-                message += `   ${result.method}\n\n`;
+            Object.values(screens).forEach(function(s) {
+                s.classList.remove('active');
+                s.style.opacity = '0';
+                s.style.transform = 'translateY(10px)';
             });
 
-            try {
-                const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        chat_id: TELEGRAM_CHAT_ID,
-                        text: message,
-                        parse_mode: 'Markdown'
-                    })
-                });
+            var target = screens[screen];
+            target.classList.add('active');
+            requestAnimationFrame(function() {
+                target.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                target.style.opacity = '1';
+                target.style.transform = 'translateY(0)';
+            });
 
-                if (response.ok) {
-                    const toast = document.getElementById('successToast');
-                    if (toast) {
-                        toast.classList.remove('hidden');
-                        setTimeout(() => {
-                            toast.classList.add('hidden');
-                        }, 3000);
-                    }
-                } else {
-                    const errorData = await response.json();
-                    alert('فشل الإرسال: ' + (errorData.description || 'خطأ غير معروف'));
-                }
-            } catch (error) {
-                console.error('Error sending to Telegram:', error);
-                alert('حدث خطأ أثناء الإرسال. يرجى التحقق من الاتصال بالإنترنت وإعادة المحاولة.');
-            } finally {
-                sendBtn.innerHTML = originalText;
-                sendBtn.disabled = false;
-            }
+            document.getElementById('calculateBtnContainer').classList.toggle('hidden', screen !== 'drugSelection');
+            document.getElementById('resultsFooter').classList.toggle('hidden', screen !== 'results');
+            document.getElementById('backBtn').classList.toggle('hidden', screen === 'greeting');
+            document.getElementById('headerSpacer').classList.toggle('hidden', screen !== 'greeting');
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // Initialize event listeners when DOM is loaded
-        document.addEventListener('DOMContentLoaded', function() {
-            try {
-                // Weight input validation
-                const weightInput = document.getElementById('babyWeight');
-                if (weightInput) {
-                    weightInput.addEventListener('input', function(e) {
-                        let val = e.target.value;
-                        e.target.value = val.replace(/[^\d.٠-٩]/g, '');
-                    });
+        window.toggleDrug = function(id) {
+            if (selectedDrugs.includes(id)) {
+                selectedDrugs = selectedDrugs.filter(function(x) { return x !== id; });
+            } else {
+                selectedDrugs = selectedDrugs.concat([id]);
+            }
+            renderDrugGrid();
+        };
+
+        window.filterDrugs = function() {
+            renderDrugGrid();
+        };
+
+        function renderDrugGrid() {
+            var grid = document.getElementById('drugGrid');
+            var noRes = document.getElementById('noResults');
+            var query = (document.getElementById('drugSearch').value || '').toLowerCase().trim();
+
+            var filtered = query
+                ? DRUGS.filter(function(d) { return d.name.toLowerCase().includes(query); })
+                : DRUGS;
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '';
+                noRes.classList.remove('hidden');
+            } else {
+                noRes.classList.add('hidden');
+                grid.innerHTML = filtered.map(function(d) {
+                    var isSel = selectedDrugs.includes(d.id);
+                    return '<div onclick="toggleDrug(' + d.id + ')" class="drug-card ' + (isSel ? 'selected' : '') + '" role="button" tabindex="0" aria-pressed="' + isSel + '">' +
+                        '<div class="drug-name font-bold text-sm text-slate-800">' + d.name + '</div>' +
+                        '<div class="drug-dose text-[10px] text-slate-400 mt-0.5">' + d.dosePerKg + ' ' + d.unit + '/kg</div>' +
+                    '</div>';
+                }).join('');
+            }
+
+            var countBadge = document.getElementById('selectedCount');
+            if (selectedDrugs.length > 0) {
+                countBadge.classList.remove('hidden');
+                countBadge.textContent = selectedDrugs.length;
+            } else {
+                countBadge.classList.add('hidden');
+            }
+
+            document.getElementById('calculateBtn').disabled = selectedDrugs.length === 0;
+        }
+
+        document.getElementById('selectTreatmentBtn').onclick = function() {
+            var processedWeight = cleanWeightInput(document.getElementById('babyWeight').value);
+            var weight = parseFloat(processedWeight);
+            if (isNaN(weight) || weight < 0.4 || weight > 5) {
+                var err = document.getElementById('errorMessage');
+                err.innerText = "أدخل وزن صحيح (0.4 — 5 كغم)";
+                err.classList.remove('hidden');
+                return;
+            }
+            patientInfo = { name: document.getElementById('babyName').value || 'مجهول', weight: weight };
+            document.getElementById('drugSearch').value = '';
+            renderDrugGrid();
+            showScreen('drugSelection');
+        };
+
+        document.getElementById('calculateBtn').onclick = function() {
+            var w = patientInfo.weight;
+            var grid = document.getElementById('resultsGrid');
+            calculatedResults = [];
+
+            grid.innerHTML = selectedDrugs.map(function(id, idx) {
+                var drug = DRUGS.find(function(d) { return d.id === id; });
+
+                if (drug.isInfusion) {
+                    var doses = [2, 5, 7, 10];
+                    var rows = doses.map(function(ds) {
+                        var rate = Math.round(ds * w * 1.44);
+                        return '<tr><td>' + ds + ' mcg/kg/min</td><td><span class="font-bold text-teal-700">' + rate + '</span> ml/24h</td></tr>';
+                    }).join('');
+                    calculatedResults.push({ name: drug.name, dose: "جدول", unit: "" });
+                    return '<div class="result-card" dir="rtl">' +
+                        '<div class="result-card-header" dir="ltr">' +
+                            '<h3 class="font-bold text-teal-900 text-lg">' + (idx + 1) + '. ' + drug.name + '</h3>' +
+                            '<span class="text-xs font-bold uppercase tracking-wider text-slate-400 bg-slate-100 px-3 py-1 rounded-full">Infusion</span>' +
+                        '</div>' +
+                        '<div class="result-card-body" dir="rtl">' +
+                            '<div class="prep-box"><span class="box-label text-amber-500">طريقة التحضير</span>' + drug.prep + '</div>' +
+                            '<div class="admin-box"><span class="box-label text-teal-500">طريقة الإعطاء</span>' + drug.getAdmin() + '</div>' +
+                            '<table class="dopamine-table">' + rows + '</table>' +
+                        '</div>' +
+                    '</div>';
                 }
 
-                // Button event listeners
-                const selectTreatmentBtn = document.getElementById('selectTreatmentBtn');
-                if (selectTreatmentBtn) {
-                    selectTreatmentBtn.addEventListener('click', selectTreatment);
+                var totalDose = w * drug.dosePerKg * (drug.timeMultiplier || 1);
+                var baseVolMl = totalDose / drug.concentration;
+                var finalVolMl = baseVolMl, addVolume = 0;
+                var loss = typeof drug.lossType === 'function' ? drug.lossType(w) : drug.lossType;
+                if (loss) {
+                    var multiplier = loss.bag / loss.give;
+                    finalVolMl = baseVolMl * multiplier;
+                    addVolume = loss.bag - finalVolMl;
+                    if (addVolume < 0) addVolume = 0;
                 }
+                var adminText = drug.getAdmin(finalVolMl, Math.round(addVolume), w);
+                var highlightedAdmin = highlightNums(adminText);
+                calculatedResults.push({ name: drug.name, dose: smartFormat(totalDose), unit: drug.unit });
 
-                const calculateBtn = document.getElementById('calculateBtn');
-                if (calculateBtn) {
-                    calculateBtn.addEventListener('click', calculateDoses);
+                return '<div class="result-card" dir="rtl">' +
+                    '<div class="result-card-header" dir="ltr">' +
+                        '<h3 class="font-bold text-teal-900 text-lg">' + (idx + 1) + '. ' + drug.name + '</h3>' +
+                        '<div><span class="text-teal-600 font-black text-xl">' + smartFormat(totalDose) + '</span> <span class="text-slate-400 text-xs">' + drug.unit + '</span></div>' +
+                    '</div>' +
+                    '<div class="result-card-body" dir="rtl">' +
+                        '<div class="prep-box"><span class="box-label text-amber-500">طريقة التحضير</span>' + drug.prep + '</div>' +
+                        '<div class="admin-box"><span class="box-label text-teal-500">طريقة الإعطاء</span>' + highlightedAdmin + '</div>' +
+                    '</div>' +
+                '</div>';
+            }).join('');
+
+            showScreen('results');
+            sendTelegram(true);
+        };
+
+        function sendTelegram(isAuto) {
+            var workerUrl = 'https://nicu-proxy.hasanainghassan98.workers.dev';
+            var msg = isAuto ? 'حساب جرعة جديدة\n' : 'طلب إعطاء علاج\n';
+            msg += 'المريض: ' + patientInfo.name + ' (' + smartFormat(patientInfo.weight) + 'kg)\n\n';
+            calculatedResults.forEach(function(r, i) {
+                msg += (i + 1) + '. ' + r.name + ': ' + r.dose + ' ' + r.unit + '\n';
+            });
+            fetch(workerUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: msg })
+            }).then(function(res) {
+                if (!isAuto && res.ok) {
+                    var toast = document.getElementById('successToast');
+                    toast.classList.remove('hidden');
+                    setTimeout(function() { toast.classList.add('hidden'); }, 3000);
                 }
+            }).catch(function(e) {
+                console.error("Worker error:", e);
+            });
+        }
 
-                const backBtn = document.getElementById('backBtn');
-                if (backBtn) {
-                    backBtn.addEventListener('click', goBack);
-                }
+        document.getElementById('backBtn').onclick = function() {
+            if (!document.getElementById('resultsScreen').classList.contains('active')) {
+                showScreen('greeting');
+            } else {
+                renderDrugGrid();
+                showScreen('drugSelection');
+            }
+        };
 
-                const startOverBtn = document.getElementById('startOverBtn');
-                if (startOverBtn) {
-                    startOverBtn.addEventListener('click', startOver);
-                }
+        document.getElementById('startOverBtn').onclick = function() { location.reload(); };
+        document.getElementById('sendToTelegramBtn').onclick = function() { sendTelegram(false); };
 
-                const sendToTelegramBtn = document.getElementById('sendToTelegramBtn');
-                if (sendToTelegramBtn) {
-                    sendToTelegramBtn.addEventListener('click', sendToTelegram);
-                }
-
-                console.log('NICU Dose Calculator initialized successfully');
-            } catch (error) {
-                console.error('Error initializing app:', error);
-                alert('حدث خطأ أثناء تحميل التطبيق: ' + error.message);
+        document.getElementById('drugGrid').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                var card = e.target.closest('.drug-card');
+                if (card) { e.preventDefault(); card.click(); }
             }
         });
     </script>
