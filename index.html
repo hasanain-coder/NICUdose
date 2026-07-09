@@ -241,12 +241,125 @@
         .box-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; display: block; font-weight: 700; }
         .gir-amber { color: #b45309; font-weight: 800; }
 
+        .disclaimer-footer {
+            text-align: center;
+            padding: 16px 20px 8px;
+            color: #94a3b8;
+            font-size: 0.7rem;
+            line-height: 1.8;
+        }
+        .disclaimer-footer a {
+            color: var(--primary-light);
+            text-decoration: underline;
+            text-underline-offset: 2px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+        .disclaimer-footer a:hover { color: var(--primary-dark); }
+
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(6px);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .modal-overlay.hidden { display: none; }
+        .modal-overlay.visible { opacity: 1; }
+
+        .modal-box {
+            background: white;
+            border-radius: 24px;
+            max-width: 540px;
+            width: 100%;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.25);
+            transform: translateY(20px) scale(0.97);
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow: hidden;
+        }
+        .modal-overlay.visible .modal-box {
+            transform: translateY(0) scale(1);
+        }
+
+        .modal-header {
+            padding: 24px 24px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .modal-header-icon {
+            width: 44px; height: 44px;
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .modal-header-icon svg { width: 22px; height: 22px; color: #b45309; }
+        .modal-header h2 {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1.4;
+        }
+
+        .modal-body {
+            padding: 20px 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        .modal-body p {
+            font-size: 0.85rem;
+            color: #475569;
+            line-height: 2;
+            font-weight: 500;
+            margin-bottom: 14px;
+        }
+        .modal-body p:last-child { margin-bottom: 0; }
+
+        .modal-footer {
+            padding: 16px 24px 24px;
+            border-top: 1px solid #f1f5f9;
+        }
+
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
         }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
+
+    <div id="disclaimerModal" class="modal-overlay hidden">
+        <div class="modal-box">
+            <div class="modal-header">
+                <div class="modal-header-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg>
+                </div>
+                <h2>إخلاء مسؤولية طبية</h2>
+            </div>
+            <div class="modal-body">
+                <p>هذا التطبيق هو أداة مساعدة مخصصة حصرياً للاستخدام داخل ردهة الخدج في مستشفى بغداد التعليمي. تم تصميم الحسابات ومعادلات الجرعات وطرق التحضير المدرجة فيه بناءً على البروتوكولات الطبية المحلية المعتمدة داخل هذه الردهة بالذات.</p>
+                <p>لا يتحمل مطورو التطبيق أي مسؤولية قانونية أو طبية عن أي أخطاء، أو حسابات، أو نتائج غير مرغوبة ناتجة عن استخدام هذا التطبيق خارج ردهة الخدج في مستشفى الولادة التعليمي.</p>
+                <p>يلتزم المستخدم بقراءة وتطبيق خطوات التحضير بدقة. لا يتحمل المطورون أي مسؤولية في حال عدم اتباع الإرشادات، أو سوء فهم آلية الحساب، أو إدخال بيانات خاطئة.</p>
+                <p>هذا التطبيق هو أداة رقمية مساعدة فقط لتسهيل العمل وتوفير الوقت، ولا يغني أبداً عن المراجعة والتدقيق البشري. تقع المسؤولية الكاملة والنهائية في التحقق من صحة الجرعة وطريقة تحضيرها قبل إعطائها للمريض على عاتق المستخدم.</p>
+            </div>
+            <div class="modal-footer">
+                <button id="disclaimerAcceptBtn" class="btn-primary">
+                    قرأت الإخلاء وأوافق على الشروط
+                </button>
+            </div>
+        </div>
+    </div>
 
     <div id="toastContainer" class="fixed top-4 left-0 right-0 z-50 flex justify-center pointer-events-none">
         <div id="successToast" class="toast bg-emerald-600 text-white px-6 py-3 rounded-full shadow-xl hidden pointer-events-auto text-sm font-bold">
@@ -359,6 +472,11 @@
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <div class="disclaimer-footer">
+                هذا التطبيق أداة مساعدة فقط ولا يغني عن التدقيق البشري — المسؤولية النهائية على عاتق المستخدم.
+                <br><a id="openDisclaimerLink">قراءة إخلاء المسؤولية الكامل</a>
             </div>
         </div>
 
@@ -554,6 +672,50 @@
         var patientInfo = null;
         var calculatedResults = [];
 
+        /* ===== Disclaimer Modal ===== */
+        function openDisclaimerModal() {
+            var modal = document.getElementById('disclaimerModal');
+            modal.classList.remove('hidden');
+            void modal.offsetHeight;
+            modal.classList.add('visible');
+        }
+
+        function closeDisclaimerModal() {
+            var modal = document.getElementById('disclaimerModal');
+            modal.classList.remove('visible');
+            setTimeout(function() { modal.classList.add('hidden'); }, 300);
+        }
+
+        function isDisclaimerAccepted() {
+            try { return !!sessionStorage.getItem('disclaimerAccepted'); }
+            catch(e) { return false; }
+        }
+
+        function markDisclaimerAccepted() {
+            try { sessionStorage.setItem('disclaimerAccepted', '1'); }
+            catch(e) {}
+        }
+
+        if (!isDisclaimerAccepted()) {
+            openDisclaimerModal();
+        }
+
+        document.getElementById('disclaimerAcceptBtn').onclick = function() {
+            markDisclaimerAccepted();
+            closeDisclaimerModal();
+        };
+
+        document.getElementById('openDisclaimerLink').onclick = function() {
+            openDisclaimerModal();
+        };
+
+        document.getElementById('disclaimerModal').addEventListener('click', function(e) {
+            if (e.target === this && isDisclaimerAccepted()) {
+                closeDisclaimerModal();
+            }
+        });
+
+        /* ===== Input Helpers ===== */
         function cleanWeightInput(val) {
             if (!val) return "";
             return val.toString()
@@ -571,6 +733,7 @@
             return text.replace(/(\d+\.?\d*)/g, '<span class="num-hl">$1</span>');
         }
 
+        /* ===== Fluid Calculators ===== */
         function calculateFluidPrep() {
             var totalFluid = parseFloat(cleanWeightInput(document.getElementById('totalFluidVol').value)) || 0;
             var fluidType = document.getElementById('fluidType').value;
@@ -662,6 +825,7 @@
             }
         }
 
+        /* ===== Screen Navigation ===== */
         function showScreen(screen) {
             var screens = {
                 greeting: document.getElementById('greetingScreen'),
@@ -691,6 +855,7 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
+        /* ===== Drug Selection ===== */
         window.toggleDrug = function(id) {
             if (selectedDrugs.includes(id)) {
                 selectedDrugs = selectedDrugs.filter(function(x) { return x !== id; });
@@ -738,6 +903,7 @@
             document.getElementById('calculateBtn').disabled = selectedDrugs.length === 0;
         }
 
+        /* ===== Patient Info ===== */
         document.getElementById('selectTreatmentBtn').onclick = function() {
             var processedWeight = cleanWeightInput(document.getElementById('babyWeight').value);
             var weight = parseFloat(processedWeight);
@@ -753,6 +919,7 @@
             showScreen('drugSelection');
         };
 
+        /* ===== Results ===== */
         document.getElementById('calculateBtn').onclick = function() {
             var w = patientInfo.weight;
             var grid = document.getElementById('resultsGrid');
@@ -811,6 +978,7 @@
             sendTelegram(true);
         };
 
+        /* ===== Telegram ===== */
         function sendTelegram(isAuto) {
             var workerUrl = 'https://nicu-proxy.hasanainghassan98.workers.dev';
             var msg = isAuto ? 'حساب جرعة جديدة\n' : 'طلب إعطاء علاج\n';
@@ -833,6 +1001,7 @@
             });
         }
 
+        /* ===== Navigation ===== */
         document.getElementById('backBtn').onclick = function() {
             if (!document.getElementById('resultsScreen').classList.contains('active')) {
                 showScreen('greeting');
